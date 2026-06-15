@@ -508,6 +508,444 @@ Hãy kiểm tra luồng planning từ forecast đến MRP như một chuỗi k�
     featured: false,
     publishedAt: { seconds: 1703116800, nanoseconds: 0 },
   },
+  {
+    id: "13",
+    title: "Cách tính Lead Time và Reorder Point cho nhà cung cấp Việt Nam",
+    slug: "cach-tinh-lead-time-reorder-point-cho-nha-cung-cap-viet-nam",
+    excerpt: "Lead Time không chỉ là số ngày supplier báo. Doanh nghiệp cần tính lead time thực tế, biến động lead time và từ đó thiết lập reorder point phù hợp với điều kiện mua hàng tại Việt Nam.",
+    body: `# Cách tính Lead Time và Reorder Point cho nhà cung cấp Việt Nam
+
+## Vấn đề thực tế
+
+Nhiều doanh nghiệp mua hàng dựa trên lead time supplier báo qua email: 7 ngày, 14 ngày, 30 ngày. Nhưng thực tế hàng về sớm hơn hoặc trễ hơn liên tục, dẫn đến:
+- Hàng về sớm → Tồn kho tăng, chiếm chỗ
+- Hàng về trễ → Thiếu hàng, ngừng sản xuất
+- Kho không biết lịch nhận → Check-in chậm, sai location
+
+Gốc vấn đề: lead time không chỉ là con số supplier hứa. Nó là distribution có biến động.
+
+## Khái niệm cốt lõi
+
+### Lead Time (LT)
+Thời gian từ lúc đặt hàng đến lúc nhận được hàng tại kho. Gồm:
+- **Procurement LT**: Supplier processing + sản xuất
+- **Transport LT**: Vận chuyển từ supplier đến kho
+- **Receiving LT**: Check-in, kiểm đếm, put-away
+
+Công thức:
+\`\`\`
+Total LT = Procurement LT + Transport LT + Receiving LT
+\`\`\`
+
+### Lead Time Variability
+Độ biến động của LT — đo bằng Standard Deviation:
+\`\`\`
+SD_LT = STDEV.S(lịch sử lead time ít nhất 10-15 lần gần nhất)
+\`\`\`
+
+### Reorder Point (ROP)
+Mức tồn kho kích hoạt đặt hàng mới:
+\`\`\`
+ROP = (Avg Daily Usage × Avg LT) + Safety Stock
+\`\`\`
+
+### Safety Stock (SS)
+Lượng hàng dự trữ an toàn đề phòng biến động:
+\`\`\`
+SS = Z × √(LT_avg × SD_usage² + Usage_avg² × SD_LT²)
+\`\`\`
+Với Z = 1.65 (95% service level) hoặc Z = 2.33 (99% service level).
+
+## Áp dụng tại doanh nghiệp Việt Nam
+
+### Vấn đề thường gặp ở supplier VN:
+
+1. **Supplier báo 7 ngày nhưng thực tế 10-15 ngày**
+   - Lý do: Thiếu nguyên liệu đầu vào, production scheduling kém
+   - Cách xử lý: Track historical LT 3 tháng, lấy P90 thay vì average
+
+2. **Vận chuyển nội địa không ổn định**
+   - Tết: tăng 3-5 ngày
+   - Mưa bão: tăng 2-3 ngày
+   - Cách xử lý: Cộng seasonal buffer (2-5 ngày tùy tháng)
+
+3. **Check-in chậm do quá tải kho**
+   - Container dồn về cuối tuần
+   - Thiếu nhân sự kiểm đếm
+   - Cách xử lý: Phân bổ lịch nhận hàng đều trong tuần
+
+### Các bước thực hiện:
+
+**Bước 1: Thu thập data lịch sử**
+Lấy 10-15 PO gần nhất mỗi supplier, ghi:
+- PO date, confirm date, hàng thực tế vào kho date
+
+**Bước 2: Tính toán**
+\`\`\`
+Avg LT = AVERAGE(lịch sử LT)
+SD LT = STDEV.S(lịch sử LT)
+P90 LT = PERCENTILE.INC(lịch sử LT, 0.90)
+\`\`\`
+
+**Bước 3: Thiết lập ROP**
+\`\`\`
+Safety Stock = Z × √(LT_avg × SD_usage² + Usage_avg² × SD_LT²)
+ROP = (Avg Daily Usage × Avg LT) + Safety Stock
+\`\`\`
+
+**Bước 4: Review hàng tháng**
+Cập nhật LT mới nhất. Nếu SD_LT tăng → đàm phán lại hoặc tìm supplier thay thế.
+
+## Template / tool liên quan
+
+Supplier Lead Time Tracker và Reorder Point Calculator là hai template Excel giúp theo dõi historical LT, tính toán ROP và safety stock tự động.
+
+## Kết luận hành động
+
+Lead Time không thể đoán bằng cảm tính. Hãy track historical LT tối thiểu 3 tháng, tính biến động (SD), và thiết lập ROP dựa trên cả usage lẫn lead time variability. Bắt đầu bằng 1 supplier quan trọng nhất trước, sau đó nhân rộng.`,
+    type: "article" as const,
+    tags: ["Procurement", "Inventory", "Safety Stock"],
+    authorName: "SCHub.vn",
+    readTimeMinutes: 9,
+    featured: false,
+    publishedAt: { seconds: 1710086400, nanoseconds: 0 },
+  },
+  {
+    id: "14",
+    title: "Khi nào Demand và Supply không cân? Cách xử lý trong S&OP",
+    slug: "demand-supply-khong-can-xu-ly-trong-sop",
+    excerpt: "Demand > Supply hoặc Demand < Supply là chuyện thường. Vấn đề là doanh nghiệp có cơ chế ra quyết định rõ ràng để xử lý gap này trong S&OP hay cứ họp xong không có action.",
+    body: `# Khi nào Demand và Supply không cân? Cách xử lý trong S&OP
+
+## Vấn đề thực tế
+
+Sau khi tổng hợp demand và supply, đội S&OP thường phát hiện gap: demand cao hơn năng lực cung ứng, hoặc demand thấp hơn sản lượng tối thiểu. Nhưng cuộc họp kết thúc mà không có quyết định phân bổ hoặc giảm hàng cụ thể.
+
+## 2 dạng gap
+
+### 1. Demand > Supply (thiếu hàng)
+
+Nguyên nhân:
+- Sales chạy chương trình không báo trước
+- Supplier giao trễ hoặc thiếu công suất
+- Kho không đủ sức chứa / nhân sự
+
+**Quyết định cần có trong S&OP:**
+
+| Tình huống | Cách xử lý | Ai quyết định |
+|------------|-----------|--------------|
+| Thiếu ngắn hạn (1-2 tuần) | Phân bổ theo KP priority | Sales Director |
+| Thiếu trung hạn (1-3 tháng) | Overtime + thuê 3PL | Ops Director |
+| Thiếu dài hạn (>3 tháng) | Đầu tư capacity / new supplier | CEO + CFO |
+
+**Nguyên tắc phân bổ khi thiếu:**
+
+1. **Customer Priority**: Khách hàng chiến lược được ưu tiên
+2. **Margin**: SKU margin cao được ưu tiên
+3. **Contractual**: Cam kết hợp đồng phải đáp ứng trước
+
+\`\`\`
+Allocation % = (Customer Score × Weight) / Total Score
+Customer Score = (Revenue × 0.3) + (Margin × 0.3) + (Strategic Flag × 0.4)
+\`\`\`
+
+### 2. Demand < Supply (dư hàng)
+
+Nguyên nhân:
+- Forecast quá lạc quan
+- Đối thủ cạnh tranh giảm giá
+- Thị trường chững lại
+
+**Quyết định cần có:**
+
+| Tình huống | Cách xử lý | Ai quyết định |
+|------------|-----------|--------------|
+| Dư ngắn (1-2 tuần) | Giữ inventory, không điều chỉnh production | Supply Chain Manager |
+| Dư trung hạn (1-3 tháng) | Giảm production rate, delay supplier PO | Procurement + Planning |
+| Dư dài hạn (>3 tháng) | Promotion / giảm giá, giảm stock target | Sales + CFO |
+
+## Công cụ hỗ trợ
+
+**Supply-Demand Gap Analysis** — file excel đối chiếu:
+- Demand plan (latest consensus)
+- Supply plan (inventory + production + PO in transit)
+- Gap = Supply - Demand
+- Action: phân bổ nếu gap âm, giảm mua nếu gap dương
+
+## Kết luận hành động
+
+Sau mỗi kỳ S&OP, phải có:
+- Gap số (bao nhiêu, SKU nào, khoảng thời gian)
+- Quyết định xử lý cụ thể (phân bổ, tăng/giảm production, delay PO)
+- Owner rõ ràng cho mỗi action
+- Review ở kỳ S&OP sau
+
+Nếu S&OP không có gap resolution, nó chỉ là meeting báo cáo.`,
+    type: "article" as const,
+    tags: ["S&OP", "Demand Planning", "Supply Planning"],
+    authorName: "SCHub.vn",
+    readTimeMinutes: 9,
+    featured: false,
+    publishedAt: { seconds: 1710172800, nanoseconds: 0 },
+  },
+  {
+    id: "15",
+    title: "Từ Demand Review đến Executive S&OP: ai làm gì trong từng vòng?",
+    slug: "demand-review-den-executive-sop-ai-lam-gi",
+    excerpt: "S&OP không phải một cuộc họp mà là bốn vòng. Mỗi vòng có mục tiêu, người tham gia và quyết định riêng. Làm lẫn vòng nào cũng khiến S&OP mất tác dụng.",
+    body: `# Từ Demand Review đến Executive S&OP: ai làm gì trong từng vòng?
+
+## Vấn đề thực tế
+
+Nhiều doanh nghiệp gọi một cuộc họp hàng tháng có mặt Sales, Planning, Production, Finance, CEO là "họp S&OP". Nhưng thực tế cuộc họp đó ôm đồm quá nhiều thông tin, không đủ thời gian để ra quyết định, và mọi người về vẫn không biết ai làm gì.
+
+S&OP là một quy trình bốn vòng (phases). Mỗi vòng có đầu vào, đầu ra riêng. Làm đúng vòng nào ra vòng đó.
+
+## Vòng 1: Demand Review
+
+**Mục tiêu**: Chốt một demand plan thống nhất
+
+**Ai tham gia**:
+- Sales (chính)
+- Marketing
+- Planning/SCM (hỗ trợ data)
+
+**Đầu vào**:
+- Historical sales data
+- Promotion calendar
+- Market intelligence
+- New product launch plan
+
+**Nội dung chính**:
+1. Review sales thực tế vs forecast kỳ trước
+2. Cập nhật forecast kỳ tới (baseline + promotional)
+3. Ghi nhận giả định (assumption log)
+4. Chốt demand plan cho 12-18 tháng
+
+**Đầu ra**: Demand plan (consensus) — chưa cần supply
+
+**Template**: Demand Plan Template — forecast theo customer/SKU/tháng, có ghi assumption và commercial adjustment.
+
+## Vòng 2: Supply Review
+
+**Mục tiêu**: Xây supply plan để đáp ứng demand
+
+**Ai tham gia**:
+- Planning/SCM (chính)
+- Production
+- Procurement
+- Warehouse & Logistics
+
+**Đầu vào**:
+- Demand plan từ vòng 1
+- Inventory status (on-hand, in-transit)
+- Production capacity
+- Supplier lead time & capacity
+- Warehouse capacity
+
+**Nội dung chính**:
+1. Run supply plan (MRP hoặc Excel)
+2. Check capacity constraints (production, warehouse, supplier)
+3. Đề xuất giải pháp (OT, subcontract, delay)
+4. Identify supply gaps
+
+**Đầu ra**: Supply plan + Supply-Demand Gap Analysis
+
+**Template**: Supply Plan Template — đối chiếu supply và demand từng SKU, ghi rõ action đang thực hiện.
+
+## Vòng 3: Pre-S&OP (Integrated Reconciliation)
+
+**Mục tiêu**: Cân bằng demand, supply và finance
+
+**Ai tham gia**:
+- SCM Lead (chính)
+- Sales Manager
+- Production Manager
+- Finance (cost impact)
+
+**Đầu vào**:
+- Demand plan (confirmed)
+- Supply plan (feasible)
+- Gap analysis
+- Financial constraints (budget, cash flow)
+
+**Nội dung chính**:
+1. Giải quyết gap không thể đóng ở vòng 1, 2
+2. Đề xuất allocation scenarios (if demand > supply)
+3. Đề xuất inventory / production adjustment (if demand < supply)
+4. Tính financial impact
+5. Chuẩn bị recommendation cho Executive
+
+**Đầu ra**: Pre-S&OP pack — summary, gap, recommendation, action items
+
+**Template**: Pre-S&OP Pack — 1-page summary: Demand vs Supply, Gap, Recommended Decision, Financial Impact, Risk.
+
+## Vòng 4: Executive S&OP
+
+**Mục tiêu**: Ra quyết định cuối cùng
+
+**Ai tham gia**:
+- CEO (chủ trì)
+- CFO
+- Sales Director
+- Operations Director
+- SCM Director (trình bày)
+
+**Đầu vào**:
+- Pre-S&OP pack (1-page summary)
+- Các vấn đề chưa giải quyết được
+
+**Nội dung chính**:
+1. Không trình bày lại số liệu chi tiết — chỉ decisions
+2. Phê duyệt các recommendation từ Pre-S&OP
+3. Quyết định allocation, budget, capacity đầu tư
+4. Approve one-number plan
+
+**Đầu ra**: One-number plan được approve + action items + decision log
+
+**Template**: Executive S&OP Meeting Deck — tối đa 5 slides: Summary, Demand vs Supply, Key Decisions, Financial Impact, Action Log.
+
+## Tóm tắt 4 vòng
+
+| Vòng | Tên | Thời gian | Lead | Đầu ra |
+|------|-----|-----------|------|--------|
+| 1 | Demand Review | Tuần 1 | Sales | Demand plan |
+| 2 | Supply Review | Tuần 1-2 | Planning/SCM | Supply plan + Gap |
+| 3 | Pre-S&OP | Tuần 2-3 | SCM Lead | Recommendation pack |
+| 4 | Executive S&OP | Tuần 3 | CEO | Approved one-number plan |
+
+## Lưu ý
+
+- **Không bỏ vòng 3**: Nhiều doanh nghiệp nhảy từ Supply Review thẳng lên Executive, dẫn đến Executive phải xử lý quá nhiều chi tiết
+- **Không gộp vòng 1 và 2**: Demand Review cần có Sales mindset, Supply Review cần Operations mindset — gộp lại không ai tập trung được
+- **Executive không xem số**: Executive S&OP là quyết định, không phải meeting báo cáo
+
+## Kết luận hành động
+
+Bắt đầu bằng lịch 4 vòng rõ ràng: ai, làm gì, khi nào, output là gì. Sau 3 kỳ, doanh nghiệp sẽ thấy khác biệt giữa "họp báo cáo" và "S&OP thực sự".`,
+    type: "article" as const,
+    tags: ["S&OP", "Governance", "Meeting"],
+    authorName: "SCHub.vn",
+    readTimeMinutes: 11,
+    featured: false,
+    publishedAt: { seconds: 1710259200, nanoseconds: 0 },
+  },
+  {
+    id: "16",
+    title: "S&OP trong doanh nghiệp sản xuất vs trading: khác gì nhau?",
+    slug: "sop-san-xuat-vs-trading-khac-gi",
+    excerpt: "S&OP sản xuất bị ràng buộc bởi capacity, batch size, raw material. S&OP trading bị ràng buộc bởi MOQ, inventory aging, cash flow. Mỗi loại cần cách tiếp cận khác.",
+    body: `# S&OP trong doanh nghiệp sản xuất vs trading: khác gì nhau?
+
+## Vấn đề thực tế
+
+Nhiều doanh nghiệp tìm template S&OP trên mạng và copy áp dụng, nhưng không phân biệt mình là manufacturing hay trading. Kết quả: supply plan không khả thi vì áp sai constraint.
+
+## S&OP trong doanh nghiệp sản xuất
+
+### Đặc điểm
+
+| Yếu tố | Tác động đến S&OP |
+|--------|------------------|
+| Capacity cố định | Không thể tăng production overnight |
+| Batch size tối thiểu | Nhu cầu nhỏ lẻ không đủ batch → phải chạy stock |
+| Raw material lead time | Mua hàng phải tính trước 1-3 tháng |
+| Changeover time | Chạy nhiều SKU → mất thời gian chuyển đổi |
+| Machine maintenance | Lịch bảo trì ảnh hưởng capacity |
+
+### Quyết định S&OP trong sản xuất
+
+**Demand Review:**
+- Demand > capacity → không thể đơn giản tăng production
+- Phải quyết định: chạy overtime? Outsourcing? Delay khách nào?
+
+**Supply Review:**
+- Constraint chính: Machine hours, labor, raw material availability
+- Cần capacity plan (RCCP — Rough Cut Capacity Planning) để kiểm tra
+
+\`\`\`
+Available Capacity = (Số máy × Giờ chạy/ngày × Ngày/tháng) × Utilisation %
+Required Capacity = Σ (Demand (units) × Run time per unit) + Changeover time
+Gap = Available - Required
+\`\`\`
+
+**Đầu ra khác biệt:**
+- Production plan: lịch sản xuất theo tuần, theo line
+- Raw material plan: PO plan cho supplier (3-6 tháng)
+- Capacity plan: sử dụng máy, cần OT/subcontract không
+
+### Pain point điển hình
+
+- Sales bán được nhưng nhà máy không đủ capacity
+- Raw material không kịp vì supplier lead time dài
+- Batch size tối thiểu tạo inventory không cần thiết
+
+## S&OP trong doanh nghiệp trading (phân phối)
+
+### Đặc điểm
+
+| Yếu tố | Tác động đến S&OP |
+|--------|------------------|
+| Supplier MOQ | Phải mua quantity lớn hơn nhu cầu |
+| Inventory aging | Hàng tồn lâu → giảm margin hoặc hủy |
+| Cash flow | Mua hàng = chi tiền trước, bán = thu tiền sau |
+| 3PL capacity | Phụ thuộc vào kho thuê ngoài |
+| Promotion-driven | Biến động demand lớn theo chương trình |
+
+### Quyết định S&OP trong trading
+
+**Demand Review:**
+- Demand theo mùa + promotion (không đều như sản xuất)
+- Cần phân biệt baseline vs promotional demand
+
+**Supply Review:**
+- Constraint chính: Supplier MOQ, 3PL capacity, cash
+- Cần cân bằng: mua đủ MOQ nhưng không ôm quá nhiều inventory
+
+\`\`\`
+MOQ Units = max(supplier MOQ, (Demand + Safety Stock) × Order Cycles)
+Inventory Days = Current Stock / Avg Daily Sales
+\`\`\`
+
+**Đầu ra khác biệt:**
+- Procurement plan: PO plan theo supplier, tính MOQ
+- Inventory plan: target days of inventory, slow-moving SKU review
+- Cash flow plan: dòng tiền chi cho mua hàng
+
+### Pain point điển hình
+
+- Mua theo MOQ → tồn quá nhiều → aging → phải giảm giá
+- 3PL capacity mùa peak không đủ → phải thuê thêm kho
+- Cash flow bóp nghẹt → không dám mua hàng mới
+
+## So sánh trực tiếp
+
+| Tiêu chí | Sản xuất | Trading |
+|----------|---------|---------|
+| Constraint chính | Capacity, raw material | MOQ, cash flow, 3PL |
+| Kỳ hạn planning | Dài hơn (3-12 tháng) | Ngắn hơn (1-6 tháng) |
+| Độ phức tạp supply plan | Cao (BOM, routing, machine) | Trung bình (PO + 3PL) |
+| Inventory risk | Raw material aging | Finished goods aging |
+| Quyết định khó nhất | Phân bổ capacity khi thiếu | Cân bằng MOQ vs inventory days |
+
+## Áp dụng tại doanh nghiệp Việt Nam
+
+- **Sản xuất** thường ở miền Bắc (công nghiệp hỗ trợ). Vấn đề: supplier lead time từ Trung Quốc dài, capacity theo mùa (Tết worker về quê)
+- **Trading** tập trung ở TP HCM. Vấn đề: 3PL peak season, MOQ từ supplier lớn (Unilever, P&G, Nestlé) rất cao
+
+## Kết luận hành động
+
+Trước khi triển khai S&OP, xác định doanh nghiệp thuộc loại nào. Đừng copy template từ sản xuất sang trading và ngược lại. Điều chỉnh:
+- Constraint set cho supply review
+- Kỳ hạn planning
+- Quyết định chính trong Executive S&OP`,
+    type: "article" as const,
+    tags: ["S&OP", "Manufacturing", "Trading"],
+    authorName: "SCHub.vn",
+    readTimeMinutes: 10,
+    featured: false,
+    publishedAt: { seconds: 1710345600, nanoseconds: 0 },
+  },
 ]
 
 export const seedBooks = [
