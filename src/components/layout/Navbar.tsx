@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom"
 import { BookOpen, ChevronDown, GraduationCap, Lightbulb, Menu, Package, X } from "lucide-react"
-import { useMemo, useState, useRef, useEffect } from "react"
+import { useMemo, useState, useEffect } from "react"
 import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
