@@ -42,9 +42,9 @@ export function Solutions() {
                 <h1 className="mt-4 font-[var(--font-display)] text-4xl font-bold text-[var(--color-text)] md:text-5xl">
                   Solutions cho Supply Chain thực chiến
                 </h1>
-                <p className="mt-5 max-w-3xl text-lg leading-8 text-[var(--color-text-muted)]">
-                  Từ resources miễn phí, digital products, tools đến services — SCHub.vn giúp doanh nghiệp bắt đầu nhỏ, áp dụng nhanh và mở rộng theo nhu cầu thực tế.
-                </p>
+                 <p className="mt-5 max-w-3xl text-lg leading-8 text-[var(--color-text-muted)]">
+                   Từ Resources miễn phí, Digital Products, Tools đến Services — SCHub.vn giúp doanh nghiệp bắt đầu nhỏ, áp dụng nhanh và mở rộng theo nhu cầu thực tế.
+                 </p>
                 <div className="mt-8 flex flex-wrap gap-4">
                   <a
                     href="#categories"

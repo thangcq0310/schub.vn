@@ -237,7 +237,7 @@ export function Home() {
       <section className="bg-[var(--color-surface-raised)] py-20">
         <Container>
           <h2 className="mb-4 text-center font-[var(--font-display)] text-2xl font-bold text-[var(--color-text)]">Bắt đầu từ đâu?</h2>
-          <p className="mx-auto mb-12 max-w-2xl text-center text-[var(--color-text-muted)]">Chọn một hướng phù hợp với nhu cầu hiện tại: hiểu SCHub.vn, học theo lộ trình, tìm solution hoặc đọc bài viết thực chiến.</p>
+           <p className="mx-auto mb-12 max-w-2xl text-center text-[var(--color-text-muted)]">Chọn một hướng phù hợp với nhu cầu hiện tại: hiểu SCHub.vn, học theo lộ trình, xem Solutions hoặc đọc Blog thực chiến.</p>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {mainPaths.map((path) => (
               <Link key={path.title} to={path.href} className="surface-panel card-hover block rounded-[var(--radius-xl)] p-6">
