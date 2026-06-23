@@ -148,9 +148,9 @@ export default function Navbar() {
                      <ChevronDown className={cn("h-4 w-4 transition-transform", open && "rotate-180")} />
                    </button>
 
-                    {open && (
-                      <div
-                        className="absolute left-0 top-[-10px] min-w-[260px] rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-surface-raised)] p-2 shadow-[var(--shadow-panel-hover)]"
+{open && (
+                       <div
+                         className="absolute left-0 top-full mt-2 z-[100] min-w-[260px] rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-surface-raised)] p-2 shadow-[var(--shadow-panel-hover)]"
                         onMouseEnter={() => {
                           if (isSolutionsMenu && solutionsTimeout) {
                             clearTimeout(solutionsTimeout)
