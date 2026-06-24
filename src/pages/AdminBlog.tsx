@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
-import { Plus, Save, Trash2, Eye, ArrowLeft, FileText, Database } from "lucide-react"
+import { Plus, Save, Trash2, Eye, ArrowLeft, FileText, Database, LogOut } from "lucide-react"
 import { isDemoMode } from "../lib/firebase"
 import { getAllArticles, createArticle, updateArticle, deleteArticle, type Article } from "../lib/articles"
 import { VideoEmbed } from "../components/VideoEmbed"
@@ -123,6 +123,9 @@ export default function AdminBlog() {
             </button>
             <button onClick={() => setTab("editor")} className={`flex items-center gap-1.5 rounded-[var(--radius-md)] px-3 py-1.5 text-xs font-medium ${tab === "editor" ? "bg-[var(--color-primary)] text-white" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface)]"}`}>
               <Plus className="h-3.5 w-3.5" /> {editing ? "Sửa" : "Thêm"}
+            </button>
+            <button onClick={() => { sessionStorage.removeItem("schub_admin_auth"); window.location.reload() }} className="flex items-center gap-1.5 rounded-[var(--radius-md)] px-3 py-1.5 text-xs font-medium text-[var(--color-text-muted)] hover:bg-[var(--color-surface)]" title="Đăng xuất">
+              <LogOut className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
