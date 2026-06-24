@@ -1,5 +1,7 @@
 import { useParams, Link } from "react-router-dom"
 import { Clock, User, ArrowLeft } from "lucide-react"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 import Container from "../components/layout/Container"
 import { seedArticles } from "../data/seedData"
 
@@ -51,10 +53,12 @@ export function ArticleDetail() {
           </span>
         </div>
         
-        <div className="prose prose-slate max-w-none">
-          <p className="text-lg text-[var(--color-text-muted)] mb-8">{article.excerpt}</p>
-          <div className="whitespace-pre-wrap text-[var(--color-text)]">{article.body}</div>
-        </div>
+<div className="prose max-w-none">
+  <p className="text-lg text-[var(--color-text-muted)] mb-8">{article.excerpt}</p>
+  <div className="markdown-body text-[var(--color-text)]">
+    <ReactMarkdown remarkPlugins={[remarkGfm]}>{article.body}</ReactMarkdown>
+  </div>
+</div>
       </article>
       
       {/* CTA at end of article */}
