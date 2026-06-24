@@ -20,6 +20,7 @@ import { LearningDemandManagement } from "@/pages/learning/LearningDemandManagem
 import { LearningForecasting } from "@/pages/learning/LearningForecasting"
 import { LearningSOP } from "@/pages/learning/LearningSOP"
 import { LearningOperationsPlanningControl } from "@/pages/learning/LearningOperationsPlanningControl"
+import AdminBlog from "@/pages/AdminBlog"
 
 function App() {
   return (
@@ -55,6 +56,7 @@ function App() {
           <Route path="scm" element={<Navigate to="/" replace />} />
           <Route path="scm/*" element={<Navigate to="/" replace />} />
         </Route>
+        <Route path="/admin/blog" element={<AdminBlog />} />
       </Routes>
     </HelmetProvider>
   )

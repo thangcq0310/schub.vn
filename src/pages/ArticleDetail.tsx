@@ -1,14 +1,39 @@
+import { useEffect, useState } from "react"
 import { useParams, Link } from "react-router-dom"
 import { Clock, User, ArrowLeft } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import Container from "../components/layout/Container"
-import { seedArticles } from "../data/seedData"
+import { getArticleBySlug, getAllArticles, type Article } from "../lib/articles"
+import { VideoEmbed } from "../components/VideoEmbed"
 
 export function ArticleDetail() {
   const { slug } = useParams()
-  const article = seedArticles.find(a => a.slug === slug)
-  
+  const [article, setArticle] = useState<Article | null>(null)
+  const [related, setRelated] = useState<Article[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!slug) return
+    getArticleBySlug(slug).then((a) => {
+      setArticle(a)
+      if (a) {
+        getAllArticles().then((all) => {
+          setRelated(all.filter((x) => x.id !== a.id && x.tags.some((t) => a.tags.includes(t))).slice(0, 3))
+        })
+      }
+      setLoading(false)
+    })
+  }, [slug])
+
+  if (loading) {
+    return (
+      <Container>
+        <div className="py-12 text-center text-[var(--color-text-muted)]">Đang tải...</div>
+      </Container>
+    )
+  }
+
   if (!article) {
     return (
       <Container>
@@ -19,10 +44,6 @@ export function ArticleDetail() {
       </Container>
     )
   }
-  
-  const related = seedArticles
-    .filter(a => a.id !== article.id && a.tags.some(t => article.tags.includes(t)))
-    .slice(0, 3)
 
   return (
     <Container>
@@ -56,7 +77,22 @@ export function ArticleDetail() {
 <div className="prose max-w-none">
   <p className="text-lg text-[var(--color-text-muted)] mb-8">{article.excerpt}</p>
   <div className="markdown-body text-[var(--color-text)]">
-    <ReactMarkdown remarkPlugins={[remarkGfm]}>{article.body}</ReactMarkdown>
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      components={{
+        img: ({ src, alt }) => {
+          if (!src) return null
+          if (src.startsWith("video:") || /\.(mp4|webm|ogg)$/i.test(src)) {
+            const videoSrc = src.startsWith("video:") ? src.slice(6) : src
+            return <VideoEmbed src={videoSrc} title={alt} />
+          }
+          if (/(youtube\.com|youtu\.be|vimeo\.com)/i.test(src)) {
+            return <VideoEmbed src={src} title={alt} />
+          }
+          return <img src={src} alt={alt ?? ""} className="max-w-full rounded-[var(--radius-md)]" />
+        },
+      }}
+    >{article.body}</ReactMarkdown>
   </div>
 </div>
       </article>
