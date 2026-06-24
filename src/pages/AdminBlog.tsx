@@ -2,7 +2,8 @@ import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
-import { Plus, Save, Trash2, Eye, ArrowLeft, FileText } from "lucide-react"
+import { Plus, Save, Trash2, Eye, ArrowLeft, FileText, Database } from "lucide-react"
+import { isDemoMode } from "../lib/firebase"
 import { getAllArticles, createArticle, updateArticle, deleteArticle, type Article } from "../lib/articles"
 import { VideoEmbed } from "../components/VideoEmbed"
 
@@ -126,6 +127,15 @@ export default function AdminBlog() {
           </div>
         </div>
       </header>
+
+      {isDemoMode && (
+        <div className="mx-auto mt-4 max-w-7xl px-4">
+          <div className="flex items-center gap-2 rounded-[var(--radius-md)] bg-amber-500/20 border border-amber-500/30 px-4 py-2.5 text-sm text-amber-700">
+            <Database className="h-4 w-4 shrink-0" />
+            <span>Chế độ demo — tạo file <code className="rounded bg-amber-500/20 px-1.5 py-0.5 font-mono text-xs">.env</code> với Firebase config thật để lưu bài viết lên Firestore. Xem <code className="rounded bg-amber-500/20 px-1.5 py-0.5 font-mono text-xs">.env.example</code></span>
+          </div>
+        </div>
+      )}
 
       {message && (
         <div className="mx-auto mt-4 max-w-7xl px-4">

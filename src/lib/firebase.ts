@@ -1,6 +1,8 @@
 import { initializeApp, type FirebaseOptions } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
+export const isDemoMode = !import.meta.env.VITE_FIREBASE_API_KEY
+
 const firebaseConfig: FirebaseOptions = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "demo-key",
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "demo.firebaseapp.com",
@@ -11,5 +13,10 @@ const firebaseConfig: FirebaseOptions = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
+const db = getFirestore(app);
+export { db }
+
+if (isDemoMode) {
+  console.info("Firebase demo mode — using seed data. Create a .env file with real Firebase config to enable Firestore.")
+}
 export default app;

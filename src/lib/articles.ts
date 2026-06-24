@@ -1,4 +1,4 @@
-import { db } from "./firebase"
+import { db, isDemoMode } from "./firebase"
 import {
   collection,
   doc,
@@ -52,6 +52,7 @@ function toArticle(id: string, data: Record<string, unknown>): Article {
 const COLLECTION = "articles"
 
 export async function getAllArticles(): Promise<Article[]> {
+  if (isDemoMode) return seedArticles as Article[]
   try {
     const q = query(collection(db, COLLECTION), orderBy("publishedAt", "desc"))
     const snapshot = await getDocs(q)
@@ -63,6 +64,7 @@ export async function getAllArticles(): Promise<Article[]> {
 }
 
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
+  if (isDemoMode) return (seedArticles as Article[]).find((a) => a.slug === slug) ?? null
   try {
     const q = query(collection(db, COLLECTION), where("slug", "==", slug))
     const snapshot = await getDocs(q)
@@ -76,6 +78,10 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
 }
 
 export async function createArticle(data: Article): Promise<string | null> {
+  if (isDemoMode) {
+    console.warn("Cannot create articles in demo mode. Set up Firebase credentials in .env")
+    return null
+  }
   try {
     const { id, ...rest } = data
     const docRef = await addDoc(collection(db, COLLECTION), {
@@ -89,6 +95,10 @@ export async function createArticle(data: Article): Promise<string | null> {
 }
 
 export async function updateArticle(id: string, data: Partial<Article>): Promise<boolean> {
+  if (isDemoMode) {
+    console.warn("Cannot update articles in demo mode. Set up Firebase credentials in .env")
+    return false
+  }
   try {
     const updates = { ...data }
     delete (updates as Record<string, unknown>).id
@@ -103,6 +113,10 @@ export async function updateArticle(id: string, data: Partial<Article>): Promise
 }
 
 export async function deleteArticle(id: string): Promise<boolean> {
+  if (isDemoMode) {
+    console.warn("Cannot delete articles in demo mode. Set up Firebase credentials in .env")
+    return false
+  }
   try {
     await deleteDoc(doc(db, COLLECTION, id))
     return true
