@@ -1,24 +1,17 @@
-import { useEffect, useState } from "react"
+import { useMemo } from "react"
 import { useSearchParams } from "react-router-dom"
 import Container from "../components/layout/Container"
 import ArticleCard from "../components/cards/ArticleCard"
-import { getAllArticles, type Article } from "../lib/articles"
+import { getAllArticles } from "../data/articles"
+import type { Article } from "../data/articles"
 
 const topics = ["Tất cả", "Warehouse", "Inventory", "Cold Chain", "FEFO/FIFO", "WMS", "3PL", "S&OP", "Demand Planning", "Procurement", "Logistics Cost", "Digital SCM"]
 
 export function Articles() {
-  const [articles, setArticles] = useState<Article[]>([])
-  const [loading, setLoading] = useState(true)
+  const articles = useMemo(() => getAllArticles(), [])
   const [searchParams, setSearchParams] = useSearchParams()
   const tagFromUrl = searchParams.get("tag")
   const selectedTag = tagFromUrl && topics.includes(tagFromUrl) ? tagFromUrl : "Tất cả"
-
-  useEffect(() => {
-    getAllArticles().then((data) => {
-      setArticles(data)
-      setLoading(false)
-    })
-  }, [])
 
   const filtered = articles.filter((article) => {
     if (selectedTag !== "Tất cả" && !article.tags.includes(selectedTag)) return false
@@ -61,11 +54,7 @@ export function Articles() {
           ))}
         </div>
 
-        {loading ? (
-          <div className="surface-panel rounded-[var(--radius-xl)] px-6 py-12 text-center text-[var(--color-text-muted)]">
-            Đang tải...
-          </div>
-        ) : filtered.length > 0 ? (
+        {filtered.length > 0 ? (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filtered.map((article) => (
               <ArticleCard key={article.id} article={article} />

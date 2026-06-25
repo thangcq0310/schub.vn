@@ -21,7 +21,7 @@ import { LearningForecasting } from "@/pages/learning/LearningForecasting"
 import { LearningSOP } from "@/pages/learning/LearningSOP"
 import { LearningOperationsPlanningControl } from "@/pages/learning/LearningOperationsPlanningControl"
 import { AdminGuard } from "@/components/AdminAuth"
-import AdminBlog from "@/pages/AdminBlog"
+import { AdminBlog } from "@/pages/AdminBlog"
 
 function App() {
   return (

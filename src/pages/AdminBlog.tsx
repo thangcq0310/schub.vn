@@ -1,56 +1,100 @@
-import { useEffect, useState } from "react"
+import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
-import { Plus, Save, Trash2, Eye, ArrowLeft, FileText, Database, LogOut } from "lucide-react"
-import { isDemoMode } from "../lib/firebase"
-import { getAllArticles, createArticle, updateArticle, deleteArticle, type Article } from "../lib/articles"
-import { VideoEmbed } from "../components/VideoEmbed"
+import { ArrowLeft, Save, Plus, Trash2, Eye, Edit3, Film, Copy, Check } from "lucide-react"
+import { getAllArticles, saveArticle, deleteArticle, getPublishedArticles, generateSlug, type Article } from "../data/articles"
 
-function toSlug(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^\w\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .trim()
+function getDateSeconds(): { seconds: number; nanoseconds: number } {
+  return { seconds: Math.floor(Date.now() / 1000), nanoseconds: 0 }
 }
 
-const emptyForm = {
-  title: "",
-  slug: "",
-  excerpt: "",
-  body: "",
-  tags: "",
-  authorName: "SCHub.vn",
-  readTimeMinutes: 5,
-  featured: false,
+function extractYoutubeId(url: string): string {
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+    /^([a-zA-Z0-9_-]{11})$/,
+  ]
+  for (const p of patterns) {
+    const m = url.match(p)
+    if (m) return m[1]
+  }
+  return ""
 }
 
-export default function AdminBlog() {
+function youtubeEmbedHtml(id: string): string {
+  return `<div class="youtube-embed">
+  <iframe src="https://www.youtube.com/embed/${id}" title="YouTube video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+</div>`
+}
+
+export function AdminBlog() {
   const [articles, setArticles] = useState<Article[]>([])
-  const [editing, setEditing] = useState<Article | null>(null)
-  const [form, setForm] = useState(emptyForm)
+  const [form, setForm] = useState({
+    title: "",
+    slug: "",
+    excerpt: "",
+    body: "",
+    tags: "",
+    authorName: "SCHub.vn",
+    readTimeMinutes: 5,
+    featured: false,
+  })
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [youtubeUrl, setYoutubeUrl] = useState("")
+  const [previewYoutubeId, setPreviewYoutubeId] = useState("")
   const [showPreview, setShowPreview] = useState(false)
-  const [tab, setTab] = useState<"list" | "editor">("list")
-  const [message, setMessage] = useState("")
+  const [tab, setTab] = useState<"editor" | "list">("editor")
+  const [copied, setCopied] = useState(false)
 
-  const loadList = () => {
-    getAllArticles().then(setArticles)
+  useEffect(() => {
+    setArticles(getPublishedArticles())
+  }, [])
+
+  const handleTitleChange = (title: string) => {
+    setForm(prev => ({
+      ...prev,
+      title,
+      slug: editingId ? prev.slug : generateSlug(title),
+    }))
   }
 
-  useEffect(() => { loadList() }, [])
+  const handleYoutubeUrl = (url: string) => {
+    setYoutubeUrl(url)
+    setPreviewYoutubeId(extractYoutubeId(url))
+  }
 
-  const resetForm = () => {
-    setForm(emptyForm)
-    setEditing(null)
-    setShowPreview(false)
+  const insertYoutubeEmbed = () => {
+    if (!previewYoutubeId) return
+    const embed = youtubeEmbedHtml(previewYoutubeId)
+    setForm(prev => ({ ...prev, body: prev.body + (prev.body ? "\n\n" : "") + embed }))
+    setYoutubeUrl("")
+    setPreviewYoutubeId("")
+  }
+
+  const handleSave = () => {
+    if (!form.title.trim() || !form.body.trim()) return
+    const tags = form.tags.split(",").map(t => t.trim()).filter(Boolean)
+    const article: Article = {
+      id: editingId || Date.now().toString(),
+      title: form.title,
+      slug: form.slug || generateSlug(form.title),
+      excerpt: form.excerpt,
+      body: form.body,
+      type: "article",
+      tags: tags.length > 0 ? tags : ["Supply Chain"],
+      authorName: form.authorName,
+      readTimeMinutes: form.readTimeMinutes,
+      featured: form.featured,
+      publishedAt: getDateSeconds(),
+    }
+    saveArticle(article)
+    setEditingId(null)
+    setForm({ title: "", slug: "", excerpt: "", body: "", tags: "", authorName: "SCHub.vn", readTimeMinutes: 5, featured: false })
+    setArticles(getPublishedArticles())
+    setTab("list")
   }
 
   const handleEdit = (a: Article) => {
-    setEditing(a)
     setForm({
       title: a.title,
       slug: a.slug,
@@ -61,176 +105,194 @@ export default function AdminBlog() {
       readTimeMinutes: a.readTimeMinutes,
       featured: a.featured,
     })
+    setEditingId(a.id)
     setTab("editor")
     setShowPreview(false)
   }
 
-  const handleSave = async () => {
-    if (!form.title.trim()) { setMessage("Tiêu đề không được để trống"); return }
-    if (!form.slug.trim()) { setMessage("Slug không được để trống"); return }
-
-    const articleData = {
-      title: form.title.trim(),
-      slug: form.slug.trim(),
-      excerpt: form.excerpt.trim(),
-      body: form.body,
-      type: "article" as const,
-      tags: form.tags.split(",").map((t) => t.trim()).filter(Boolean),
-      authorName: form.authorName.trim() || "SCHub.vn",
-      readTimeMinutes: form.readTimeMinutes,
-      featured: form.featured,
-      publishedAt: Date.now(),
-    }
-
-    let ok = false
-    if (editing) {
-      ok = await updateArticle(editing.id, articleData)
-      setMessage(ok ? "Đã cập nhật bài viết" : "Lỗi khi cập nhật")
-    } else {
-      const id = await createArticle({ ...articleData, id: "" })
-      ok = id !== null
-      setMessage(ok ? "Đã tạo bài viết mới" : "Lỗi khi tạo bài viết")
-    }
-
-    if (ok) {
-      resetForm()
-      setTab("list")
-      loadList()
-    }
+  const handleDelete = (id: string) => {
+    if (!confirm("Xoá bài viết này?")) return
+    deleteArticle(id)
+    setArticles(getPublishedArticles())
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Xoá bài viết này?")) return
-    const ok = await deleteArticle(id)
-    setMessage(ok ? "Đã xoá" : "Lỗi khi xoá")
-    loadList()
+  const handleCopyCode = () => {
+    const a = getAllArticles()
+    navigator.clipboard.writeText(JSON.stringify(a, null, 2))
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-surface)]">
-      <header className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-surface-raised)]">
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
+    <div className="min-h-screen" style={{ background: "var(--color-surface)" }}>
+      <div className="sticky top-0 z-50" style={{ background: "var(--color-surface)", borderBottom: "1px solid var(--color-border)" }}>
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link to="/" className="flex items-center gap-2 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)]">
-              <ArrowLeft className="h-4 w-4" /> Về trang chủ
+            <Link to="/blog" className="flex items-center gap-1 text-sm" style={{ color: "var(--color-primary)" }}>
+              <ArrowLeft className="h-4 w-4" /> Blog
             </Link>
-            <div className="h-4 w-px bg-[var(--color-border)]" />
-            <h1 className="text-sm font-bold text-[var(--color-text)]">Quản lý Blog</h1>
+            <div style={{ width: 1, height: 20, background: "var(--color-border)" }} />
+            <h1 className="font-[var(--font-display)] font-semibold" style={{ color: "var(--color-text)" }}>Quản lý bài viết</h1>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => { setTab("list"); resetForm() }} className={`flex items-center gap-1.5 rounded-[var(--radius-md)] px-3 py-1.5 text-xs font-medium ${tab === "list" ? "bg-[var(--color-primary)] text-white" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface)]"}`}>
-              <FileText className="h-3.5 w-3.5" /> Bài viết
+            <button onClick={() => setTab("editor")} className="px-3 py-1.5 rounded-[var(--radius-sm)] text-sm font-medium flex items-center gap-1" style={{ background: tab === "editor" ? "var(--color-primary)" : "var(--color-surface-raised)", color: tab === "editor" ? "#fff" : "var(--color-text)", border: tab === "editor" ? "none" : "1px solid var(--color-border)" }}>
+              <Edit3 className="h-3.5 w-3.5" /> Viết bài
             </button>
-            <button onClick={() => setTab("editor")} className={`flex items-center gap-1.5 rounded-[var(--radius-md)] px-3 py-1.5 text-xs font-medium ${tab === "editor" ? "bg-[var(--color-primary)] text-white" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface)]"}`}>
-              <Plus className="h-3.5 w-3.5" /> {editing ? "Sửa" : "Thêm"}
-            </button>
-            <button onClick={() => { sessionStorage.removeItem("schub_admin_auth"); window.location.reload() }} className="flex items-center gap-1.5 rounded-[var(--radius-md)] px-3 py-1.5 text-xs font-medium text-[var(--color-text-muted)] hover:bg-[var(--color-surface)]" title="Đăng xuất">
-              <LogOut className="h-3.5 w-3.5" />
+            <button onClick={() => setTab("list")} className="px-3 py-1.5 rounded-[var(--radius-sm)] text-sm font-medium flex items-center gap-1" style={{ background: tab === "list" ? "var(--color-primary)" : "var(--color-surface-raised)", color: tab === "list" ? "#fff" : "var(--color-text)", border: tab === "list" ? "none" : "1px solid var(--color-border)" }}>
+              <Eye className="h-3.5 w-3.5" /> Đã đăng ({articles.length})
             </button>
           </div>
         </div>
-      </header>
+      </div>
 
-      {isDemoMode && (
-        <div className="mx-auto mt-4 max-w-7xl px-4">
-          <div className="flex items-center gap-2 rounded-[var(--radius-md)] bg-amber-500/20 border border-amber-500/30 px-4 py-2.5 text-sm text-amber-700">
-            <Database className="h-4 w-4 shrink-0" />
-            <span>Chế độ demo — tạo file <code className="rounded bg-amber-500/20 px-1.5 py-0.5 font-mono text-xs">.env</code> với Firebase config thật để lưu bài viết lên Firestore. Xem <code className="rounded bg-amber-500/20 px-1.5 py-0.5 font-mono text-xs">.env.example</code></span>
-          </div>
-        </div>
-      )}
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        {tab === "editor" ? (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-1 space-y-4">
+              <div className="p-5 rounded-[var(--radius-lg)]" style={{ background: "var(--color-surface-raised)", border: "1px solid var(--color-border)" }}>
+                <h2 className="font-[var(--font-display)] font-semibold mb-4 text-sm" style={{ color: "var(--color-text)" }}>{editingId ? "Sửa bài" : "Bài viết mới"}</h2>
 
-      {message && (
-        <div className="mx-auto mt-4 max-w-7xl px-4">
-          <div className="flex items-center justify-between rounded-[var(--radius-md)] bg-[var(--color-primary)] px-4 py-2 text-sm text-white">
-            <span>{message}</span>
-            <button onClick={() => setMessage("")} className="ml-2 text-white/70 hover:text-white">✕</button>
-          </div>
-        </div>
-      )}
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Tiêu đề</label>
+                    <input value={form.title} onChange={e => handleTitleChange(e.target.value)} className="w-full px-3 py-2 rounded-[var(--radius-sm)] text-sm" style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", color: "var(--color-text)" }} />
+                  </div>
 
-      <div className="mx-auto max-w-7xl px-4 py-6">
-        {tab === "list" ? (
-          <div className="space-y-3">
-            {articles.length === 0 ? (
-              <p className="py-12 text-center text-sm text-[var(--color-text-muted)]">Chưa có bài viết nào.</p>
-            ) : articles.map((a) => (
-              <div key={a.id} className="flex items-center justify-between rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-surface-raised)] p-4">
-                <div className="min-w-0 flex-1">
-                  <h3 className="truncate text-sm font-medium text-[var(--color-text)]">{a.title}</h3>
-                  <p className="mt-0.5 text-xs text-[var(--color-text-muted)]">/{a.slug}</p>
-                </div>
-                <div className="ml-4 flex items-center gap-2">
-                  <button onClick={() => handleEdit(a)} className="rounded-[var(--radius-md)] px-3 py-1.5 text-xs font-medium text-[var(--color-primary)] hover:bg-[var(--color-surface)]">Sửa</button>
-                  <button onClick={() => handleDelete(a.id)} className="rounded-[var(--radius-md)] px-3 py-1.5 text-xs font-medium text-red-500 hover:bg-[var(--color-surface)]"><Trash2 className="h-3.5 w-3.5" /></button>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
-            <aside className="space-y-4">
-              <div>
-                <label className="mb-1 block text-xs font-medium text-[var(--color-text-muted)]">Tiêu đề</label>
-                <input type="text" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value, slug: toSlug(e.target.value) })} placeholder="Nhập tiêu đề..." className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none" />
-              </div>
-              <div>
-                <label className="mb-1 block text-xs font-medium text-[var(--color-text-muted)]">Slug (URL)</label>
-                <input type="text" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} placeholder="slug-bai-viet" className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none" />
-              </div>
-              <div>
-                <label className="mb-1 block text-xs font-medium text-[var(--color-text-muted)]">Mô tả ngắn</label>
-                <textarea value={form.excerpt} onChange={(e) => setForm({ ...form, excerpt: e.target.value })} rows={3} placeholder="Tóm tắt 1-2 câu..." className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none resize-none" />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-[var(--color-text-muted)]">Tác giả</label>
-                  <input type="text" value={form.authorName} onChange={(e) => setForm({ ...form, authorName: e.target.value })} className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none" />
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-[var(--color-text-muted)]">Phút đọc</label>
-                  <input type="number" value={form.readTimeMinutes} onChange={(e) => setForm({ ...form, readTimeMinutes: Number(e.target.value) })} min={1} className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none" />
+                  <div>
+                    <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Slug (URL)</label>
+                    <input value={form.slug} onChange={e => setForm(prev => ({ ...prev, slug: e.target.value }))} className="w-full px-3 py-2 rounded-[var(--radius-sm)] text-sm" style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", color: "var(--color-text)" }} />
+                    <p className="text-[10px] mt-0.5" style={{ color: "var(--color-text-muted)" }}>Tự động tạo từ tiêu đề nếu để trống</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Mô tả ngắn</label>
+                    <textarea value={form.excerpt} onChange={e => setForm(prev => ({ ...prev, excerpt: e.target.value }))} rows={2} className="w-full px-3 py-2 rounded-[var(--radius-sm)] text-sm resize-none" style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", color: "var(--color-text)" }} />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Tags (cách nhau bằng dấu phẩy)</label>
+                      <input value={form.tags} onChange={e => setForm(prev => ({ ...prev, tags: e.target.value }))} placeholder="Inventory, Planning" className="w-full px-3 py-2 rounded-[var(--radius-sm)] text-sm" style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", color: "var(--color-text)" }} />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Thời gian đọc (phút)</label>
+                      <input type="number" value={form.readTimeMinutes} onChange={e => setForm(prev => ({ ...prev, readTimeMinutes: Number(e.target.value) }))} className="w-full px-3 py-2 rounded-[var(--radius-sm)] text-sm" style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", color: "var(--color-text)" }} />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <input type="checkbox" id="featured" checked={form.featured} onChange={e => setForm(prev => ({ ...prev, featured: e.target.checked }))} />
+                    <label htmlFor="featured" className="text-sm" style={{ color: "var(--color-text)" }}>Bài nổi bật (featured)</label>
+                  </div>
+
+                  <button onClick={handleSave} className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-[var(--radius-sm)] text-sm font-medium text-white" style={{ background: "var(--color-primary)" }}>
+                    <Save className="h-4 w-4" /> {editingId ? "Cập nhật" : "Đăng bài"}
+                  </button>
+
+                  {editingId && (
+                    <button onClick={() => { setEditingId(null); setForm({ title: "", slug: "", excerpt: "", body: "", tags: "", authorName: "SCHub.vn", readTimeMinutes: 5, featured: false }); setShowPreview(false) }} className="w-full text-sm" style={{ color: "var(--color-text-muted)" }}>
+                      Hủy
+                    </button>
+                  )}
                 </div>
               </div>
-              <div>
-                <label className="mb-1 block text-xs font-medium text-[var(--color-text-muted)]">Tags (ngăn cách bằng dấu phẩy)</label>
-                <input type="text" value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} placeholder="Warehouse, Inventory, 3PL" className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none" />
-              </div>
-              <div className="flex items-center gap-2">
-                <input type="checkbox" id="featured" checked={form.featured} onChange={(e) => setForm({ ...form, featured: e.target.checked })} className="rounded border-[var(--color-border)]" />
-                <label htmlFor="featured" className="text-xs text-[var(--color-text-muted)]">Bài viết nổi bật</label>
-              </div>
-              <button onClick={handleSave} className="flex w-full items-center justify-center gap-2 rounded-[var(--radius-md)] bg-[var(--color-primary)] px-4 py-2.5 text-sm font-medium text-white hover:brightness-110">
-                <Save className="h-4 w-4" /> {editing ? "Cập nhật" : "Đăng bài"}
-              </button>
-            </aside>
 
-            <div>
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-sm font-medium text-[var(--color-text)]">Nội dung (Markdown)</h2>
-                <button onClick={() => setShowPreview(!showPreview)} className={`flex items-center gap-1.5 rounded-[var(--radius-md)] px-3 py-1.5 text-xs font-medium ${showPreview ? "bg-[var(--color-primary)] text-white" : "text-[var(--color-text-muted)] hover:bg-[var(--color-surface)]"}`}>
-                  <Eye className="h-3.5 w-3.5" /> {showPreview ? "Soạn thảo" : "Xem trước"}
+              <div className="p-5 rounded-[var(--radius-lg)]" style={{ background: "var(--color-surface-raised)", border: "1px solid var(--color-border)" }}>
+                <h2 className="font-[var(--font-display)] font-semibold mb-3 text-sm flex items-center gap-1" style={{ color: "var(--color-text)" }}>
+                  <Film className="h-4 w-4" style={{ color: "#ef4444" }} /> Nhúng YouTube
+                </h2>
+                <div className="space-y-2">
+                  <input value={youtubeUrl} onChange={e => handleYoutubeUrl(e.target.value)} placeholder="Paste YouTube URL..." className="w-full px-3 py-2 rounded-[var(--radius-sm)] text-sm" style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", color: "var(--color-text)" }} />
+                  {previewYoutubeId && (
+                    <div className="aspect-video rounded-[var(--radius-sm)] overflow-hidden bg-black/10">
+                      <img src={`https://img.youtube.com/vi/${previewYoutubeId}/mqdefault.jpg`} alt="" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <button onClick={insertYoutubeEmbed} disabled={!previewYoutubeId} className="w-full flex items-center justify-center gap-1 px-3 py-2 rounded-[var(--radius-sm)] text-xs font-medium text-white disabled:opacity-40" style={{ background: previewYoutubeId ? "#ef4444" : "var(--color-surface)" }}>
+                    <Plus className="h-3.5 w-3.5" /> Chèn video vào bài viết
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-2 space-y-4">
+              <div className="flex items-center justify-between p-2 rounded-[var(--radius-lg)]" style={{ background: "var(--color-surface-raised)", border: "1px solid var(--color-border)" }}>
+                <span className="text-xs px-2" style={{ color: "var(--color-text-muted)" }}>Nội dung (Markdown)</span>
+                <button onClick={() => setShowPreview(!showPreview)} className="flex items-center gap-1 px-3 py-1.5 rounded-[var(--radius-sm)] text-xs font-medium" style={{ background: showPreview ? "var(--color-primary)" : "var(--color-surface)", color: showPreview ? "#fff" : "var(--color-text)", border: "1px solid var(--color-border)" }}>
+                  <Eye className="h-3 w-3" /> {showPreview ? "Soạn thảo" : "Xem trước"}
                 </button>
               </div>
+
               {showPreview ? (
-                <div className="markdown-body rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-surface-raised)] p-6">
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                      img: ({ src, alt }) => {
-                        if (!src) return null
-                        if (/(youtube\.com|youtu\.be|vimeo\.com)/i.test(src) || /\.(mp4|webm|ogg)$/i.test(src)) {
-                          return <VideoEmbed src={src} title={alt} />
-                        }
-                        return <img src={src} alt={alt ?? ""} className="max-w-full rounded-[var(--radius-md)]" />
-                      },
-                    }}
-                  >{form.body || "*Chưa có nội dung*"}</ReactMarkdown>
+                <div className="p-6 rounded-[var(--radius-lg)]" style={{ background: "var(--color-surface-raised)", border: "1px solid var(--color-border)" }}>
+                  <h1 className="font-[var(--font-display)] text-2xl font-bold mb-2" style={{ color: "var(--color-text)" }}>{form.title || "Tiêu đề bài viết"}</h1>
+                  <p className="text-sm mb-4" style={{ color: "var(--color-text-muted)" }}>{form.authorName} · {form.readTimeMinutes} phút đọc</p>
+                  {form.excerpt && (
+                    <p className="text-base mb-6 p-4 rounded-[var(--radius-md)]" style={{ background: "var(--color-surface)", borderLeft: "3px solid var(--color-primary)", color: "var(--color-text-muted)" }}>
+                      {form.excerpt}
+                    </p>
+                  )}
+                  <div className="markdown-body" style={{ color: "var(--color-text)" }}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{form.body || "*Chưa có nội dung...*"}</ReactMarkdown>
+                  </div>
                 </div>
               ) : (
-                <textarea value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} rows={25} placeholder="Viết nội dung Markdown tại đây..." className="w-full rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-sm text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none resize-none font-mono" />
+                <textarea value={form.body} onChange={e => setForm(prev => ({ ...prev, body: e.target.value }))} rows={24} className="w-full px-4 py-4 rounded-[var(--radius-lg)] text-sm font-mono resize-none" style={{ background: "var(--color-surface-raised)", border: "1px solid var(--color-border)", color: "var(--color-text)", lineHeight: 1.7 }} placeholder={`Viết nội dung bằng Markdown...
+
+Tiêu đề ##
+In đậm **text**
+Danh sách - item
+Link [text](url)
+
+Dùng công cụ YouTube bên trái để chèn video`} />
               )}
             </div>
+          </div>
+        ) : (
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>
+                {articles.length} bài viết đã đăng {articles.length > 0 && <>(cộng với {getAllArticles().length - articles.length} bài mặc định)</>}
+              </p>
+              <div className="flex gap-2">
+                <button onClick={handleCopyCode} className="flex items-center gap-1 px-3 py-1.5 rounded-[var(--radius-sm)] text-xs font-medium" style={{ background: "var(--color-surface-raised)", border: "1px solid var(--color-border)", color: "var(--color-text)" }}>
+                  {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                  {copied ? "Đã copy" : "Xuất code"}
+                </button>
+                <button onClick={() => setTab("editor")} className="flex items-center gap-1 px-3 py-1.5 rounded-[var(--radius-sm)] text-xs font-medium text-white" style={{ background: "var(--color-primary)" }}>
+                  <Plus className="h-3.5 w-3.5" /> Bài mới
+                </button>
+              </div>
+            </div>
+
+            {articles.length === 0 ? (
+              <div className="text-center py-20" style={{ color: "var(--color-text-muted)" }}>
+                <Edit3 className="h-10 w-10 mx-auto mb-3 opacity-40" />
+                <p className="text-sm">Chưa có bài viết nào. Bấm "Viết bài" để tạo bài đầu tiên.</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {articles.map(a => (
+                  <div key={a.id} className="flex items-start gap-4 p-4 rounded-[var(--radius-lg)]" style={{ background: "var(--color-surface-raised)", border: "1px solid var(--color-border)" }}>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-sm truncate" style={{ color: "var(--color-text)" }}>{a.title}</h3>
+                      <p className="text-xs mt-0.5 line-clamp-1" style={{ color: "var(--color-text-muted)" }}>{a.excerpt || "Không có mô tả"}</p>
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <span className="text-[10px]" style={{ color: "var(--color-text-muted)" }}>{a.readTimeMinutes} phút</span>
+                        {a.featured && <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: "var(--color-primary)", color: "#fff" }}>Featured</span>}
+                        {a.tags.slice(0, 2).map(t => (
+                          <span key={t} className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: "var(--color-surface)", color: "var(--color-text-muted)", border: "1px solid var(--color-border)" }}>{t}</span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex gap-1 shrink-0">
+                      <button onClick={() => handleEdit(a)} className="p-1.5 rounded-[var(--radius-sm)] text-xs" style={{ color: "var(--color-primary)" }}>Sửa</button>
+                      <button onClick={() => handleDelete(a.id)} className="p-1.5 rounded-[var(--radius-sm)] text-xs" style={{ color: "var(--color-danger)" }}><Trash2 className="h-3.5 w-3.5" /></button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

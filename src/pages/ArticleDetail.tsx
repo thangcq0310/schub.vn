@@ -1,38 +1,20 @@
-import { useEffect, useState } from "react"
+import { useMemo } from "react"
 import { useParams, Link } from "react-router-dom"
 import { Clock, User, ArrowLeft } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import Container from "../components/layout/Container"
-import { getArticleBySlug, getAllArticles, type Article } from "../lib/articles"
+import { getArticleBySlug, getAllArticles } from "../data/articles"
+import type { Article } from "../data/articles"
 import { VideoEmbed } from "../components/VideoEmbed"
 
 export function ArticleDetail() {
   const { slug } = useParams()
-  const [article, setArticle] = useState<Article | null>(null)
-  const [related, setRelated] = useState<Article[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    if (!slug) return
-    getArticleBySlug(slug).then((a) => {
-      setArticle(a)
-      if (a) {
-        getAllArticles().then((all) => {
-          setRelated(all.filter((x) => x.id !== a.id && x.tags.some((t) => a.tags.includes(t))).slice(0, 3))
-        })
-      }
-      setLoading(false)
-    })
-  }, [slug])
-
-  if (loading) {
-    return (
-      <Container>
-        <div className="py-12 text-center text-[var(--color-text-muted)]">Đang tải...</div>
-      </Container>
-    )
-  }
+  const allArticles = useMemo(() => getAllArticles(), [])
+  const article = slug ? getArticleBySlug(slug) ?? null : null
+  const related = article
+    ? allArticles.filter((x) => x.id !== article.id && x.tags.some((t) => article.tags.includes(t))).slice(0, 3)
+    : []
 
   if (!article) {
     return (
