@@ -1,5 +1,17 @@
-import { Mail, Package, Target, Database, Warehouse, BarChart3, Users, FileText, CheckCircle2 } from "lucide-react"
+import { Mail, Package, Target, Database, Warehouse, BarChart3, Users, FileText, CheckCircle2, ExternalLink, Award, GraduationCap, Quote } from "lucide-react"
 import Container from "../components/layout/Container"
+import founderImg from "../assets/founder.jpg"
+
+const certificates = [
+  { title: "Supply Chain Principles", issuer: "Georgia Institute of Technology", file: "Coursera 6WMJWK6PVFG3.pdf" },
+  { title: "Supply Chain Planning", issuer: "University of California, Irvine", file: "Coursera S8HMEBP66H4P.pdf" },
+  { title: "Supply Chain Management and Analytics", issuer: "Unilever", file: "Coursera B3L0PDWQDF59.pdf" },
+  { title: "Using Data Analytics in Supply Chain", issuer: "Unilever", file: "Coursera O8LV8LH5NCVT.pdf" },
+  { title: "Supply Chain Software Tools", issuer: "Unilever", file: "Coursera JJ1D4HXZREW2.pdf" },
+  { title: "Foundations of Project Management", issuer: "Google", file: "Coursera C3SD4AV6D92E.pdf" },
+  { title: "Project Initiation: Starting a Successful Project", issuer: "Google", file: "Coursera OZDPM504E2GK.pdf" },
+  { title: "Project Planning: Putting It All Together", issuer: "Google", file: "Coursera 6IWDW64T5WPE.pdf" },
+]
 
 const pillars = [
   {
@@ -93,6 +105,68 @@ export function About() {
             </div>
           </aside>
         </div>
+
+        {/* Founder section */}
+        <section className="mt-10 surface-panel rounded-[var(--radius-xl)] p-8 lg:p-10">
+          <div className="grid gap-8 lg:grid-cols-[auto_1fr]">
+            <div className="mx-auto w-48 shrink-0 lg:mx-0">
+              <img src={founderImg} alt="Chu Quang Thang"
+                className="h-48 w-48 rounded-[var(--radius-xl)] border-4 border-[var(--color-primary)] object-cover shadow-[var(--shadow-panel)]" />
+            </div>
+            <div>
+              <div className="mb-4 flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-primary)] text-white">
+                  <Award className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="font-[var(--font-mono)] text-xs uppercase tracking-[0.18em] text-[var(--color-text-muted)]">Người sáng lập</p>
+                  <h2 className="font-[var(--font-display)] text-2xl font-bold text-[var(--color-text)]">Chu Quang Thắng</h2>
+                </div>
+              </div>
+              <div className="space-y-4 text-[var(--color-text-muted)] leading-relaxed">
+                <p>
+                  Hơn 8 năm kinh nghiệm trong lĩnh vực Supply Chain, hiện là Head of Logistics & Warehouse tại Nafoods Group.
+                  Chuyên sâu về tối ưu hóa vận hành kho bãi, quản lý đội xe, hoạch định nhu cầu và số hóa quy trình logistics.
+                </p>
+                <div className="flex items-start gap-2 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface-raised)] p-4">
+                  <Quote className="mt-1 h-4 w-4 shrink-0 text-[var(--color-secondary)]" />
+                  <p className="italic text-sm">
+                    "Supply Chain không phải là lý thuyết quản trị, mà là những quyết định hàng ngày về hàng tồn, chuyến xe, 
+                    đơn hàng và dữ liệu. SCHub.vn ra đời để chia sẻ những kinh nghiệm thực chiến đó."
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Certificates section */}
+        <section className="mt-10">
+          <div className="mb-8 flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-primary)] text-white shadow-[var(--shadow-panel)]">
+              <GraduationCap className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="font-[var(--font-mono)] text-xs uppercase tracking-[0.18em] text-[var(--color-text-muted)]">Chứng chỉ</p>
+              <h2 className="font-[var(--font-display)] text-3xl font-bold text-[var(--color-text)]">Khóa học & Chứng chỉ chuyên môn</h2>
+            </div>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {certificates.map((cert) => (
+              <a key={cert.file} href={`/certificates/${encodeURIComponent(cert.file)}`} target="_blank" rel="noopener noreferrer"
+                className="group surface-panel card-hover rounded-[var(--radius-xl)] p-5 transition-all hover:-translate-y-0.5">
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--color-primary)] text-white transition-colors group-hover:bg-[var(--color-secondary)]">
+                  <Award className="h-5 w-5" />
+                </div>
+                <h3 className="font-[var(--font-display)] text-base font-bold text-[var(--color-text)]">{cert.title}</h3>
+                <p className="mt-1 text-xs text-[var(--color-text-muted)]">{cert.issuer}</p>
+                <div className="mt-3 flex items-center gap-1 text-xs font-medium text-[var(--color-primary)] opacity-0 transition-opacity group-hover:opacity-100">
+                  Xem chứng chỉ <ExternalLink className="h-3 w-3" />
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
 
         {/* Trust section */}
         <section className="mt-10">
