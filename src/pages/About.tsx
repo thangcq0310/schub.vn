@@ -87,9 +87,18 @@ export function About() {
 
             <div className="mt-8 border-t border-[var(--color-border)] pt-8">
               <h2 className="font-[var(--font-display)] text-2xl text-[var(--color-text)]">SCHub.vn tập trung vào</h2>
-              <p className="mt-3 text-[var(--color-text-muted)]">
-                Nội dung của SCHub ưu tiên các vấn đề vận hành cụ thể: thiếu hàng nhưng tồn cao, master data chưa sạch, dashboard khó dùng, quy trình chưa rõ trách nhiệm và thiếu nhịp quản trị liên phòng ban.
+              <p className="mt-3 max-w-3xl text-[var(--color-text-muted)]">
+                Nội dung của SCHub ưu tiên các vấn đề vận hành cụ thể, trải từ những việc quen thuộc hằng ngày cho tới các bài toán phức tạp và mang tính thời sự với doanh nghiệp Việt Nam:
               </p>
+
+              <ul className="mt-4 max-w-3xl space-y-2 text-[var(--color-text-muted)]">
+                <li>
+                  <span className="font-medium text-[var(--color-text)]">Từ những vấn đề đơn giản:</span> thiếu hàng nhưng tồn vẫn cao, master data chưa sạch, dashboard khó dùng, quy trình chưa rõ trách nhiệm, thiếu nhịp quản trị liên phòng ban.
+                </li>
+                <li>
+                  <span className="font-medium text-[var(--color-text)]">Cho tới các bài toán ở tầm tactical:</span> xây dựng và vận hành S&amp;OP để khớp cung – cầu, nâng độ chính xác dự báo nhu cầu, tối ưu định mức tồn kho (safety stock, điểm đặt hàng), quản trị hiệu suất nhà cung cấp và lead time, cùng đo lường – cải thiện các KPI chuỗi cung ứng (service level, fill rate, vòng quay tồn kho).
+                </li>
+              </ul>
             </div>
           </section>
 
