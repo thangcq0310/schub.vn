@@ -3,6 +3,7 @@ import Container from "../components/layout/Container"
 import founderImg from "../assets/founder.jpg"
 
 const certificates = [
+  { title: "CSCM — Certified Supply Chain Manager", issuer: "ISCEA", file: "CSCM-ISCEA.pdf" },
   { title: "Supply Chain Principles", issuer: "Georgia Institute of Technology", file: "Coursera 6WMJWK6PVFG3.pdf" },
   { title: "Supply Chain Planning", issuer: "University of California, Irvine", file: "Coursera S8HMEBP66H4P.pdf" },
   { title: "Supply Chain Management and Analytics", issuer: "Unilever", file: "Coursera B3L0PDWQDF59.pdf" },
@@ -120,13 +121,18 @@ export function About() {
                 </div>
                 <div>
                   <p className="font-[var(--font-mono)] text-xs uppercase tracking-[0.18em] text-[var(--color-text-muted)]">Người sáng lập</p>
-                  <h2 className="font-[var(--font-display)] text-2xl font-bold text-[var(--color-text)]">Chu Quang Thắng</h2>
+                  <h2 className="font-[var(--font-display)] text-2xl font-bold text-[var(--color-text)]">Chu Quang Thang (Milan)</h2>
                 </div>
               </div>
-              <div className="space-y-4 text-[var(--color-text-muted)] leading-relaxed">
+               <div className="space-y-4 text-[var(--color-text-muted)] leading-relaxed">
                 <p>
-                  Hơn 8 năm kinh nghiệm trong lĩnh vực Supply Chain, hiện là Head of Logistics & Warehouse tại Nafoods Group.
-                  Chuyên sâu về tối ưu hóa vận hành kho bãi, quản lý đội xe, hoạch định nhu cầu và số hóa quy trình logistics.
+                  <strong className="text-[var(--color-text)]">Trưởng phòng Logistics & Kho vận</strong> tại Nafoods Group — điều phối và tối ưu hóa hoạt động logistics trên toàn bộ 5 nhà máy trong cấu trúc chuỗi cung ứng tích hợp dọc của tập đoàn tại Nghệ An.
+                </p>
+                <p>
+                  Sở hữu chứng chỉ <strong className="text-[var(--color-text)]">CSCM (Certified Supply Chain Manager)</strong> của ISCEA. Nền tảng chuyên môn trải rộng trên SAP S/4HANA (EWM, TM, IM, SD), thiết kế và tối ưu layout kho, vận hành chuỗi lạnh và kho IQF, quản lý 3PL, cùng điều phối xuất nhập khẩu trên các thị trường UAE, châu Á và châu Âu.
+                </p>
+                <p>
+                  Bên cạnh vai trò vận hành, còn dẫn dắt các dự án <strong className="text-[var(--color-text)]">chuyển đổi số</strong> tại Nafoods — từ triển khai hệ thống WMS đến chuẩn hóa quy trình, kết hợp chuyên môn logistics với năng lực công nghệ để tạo ra những công cụ quản trị thực sự hữu ích.
                 </p>
                 <div className="flex items-start gap-2 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface-raised)] p-4">
                   <Quote className="mt-1 h-4 w-4 shrink-0 text-[var(--color-secondary)]" />
