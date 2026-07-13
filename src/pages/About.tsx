@@ -126,7 +126,7 @@ export function About() {
               </div>
                <div className="space-y-4 text-[var(--color-text-muted)] leading-relaxed">
                 <p>
-                  <strong className="text-[var(--color-text)]">Trưởng phòng Logistics & Kho vận</strong> tại Nafoods Group — điều phối và tối ưu hóa hoạt động logistics trên toàn bộ 5 nhà máy trong cấu trúc chuỗi cung ứng tích hợp dọc của tập đoàn tại Nghệ An.
+                  <strong className="text-[var(--color-text)]">Head of Logistics & Warehouse</strong> tại Nafoods Group — điều phối và tối ưu hóa hoạt động logistics trên toàn bộ 5 nhà máy trong cấu trúc chuỗi cung ứng tích hợp dọc của tập đoàn tại Nghệ An.
                 </p>
                 <p>
                   Sở hữu chứng chỉ <strong className="text-[var(--color-text)]">CSCM (Certified Supply Chain Manager)</strong> của ISCEA. Nền tảng chuyên môn trải rộng trên SAP S/4HANA (EWM, TM, IM, SD), thiết kế và tối ưu layout kho, vận hành chuỗi lạnh, quản lý 3PL, cùng điều phối xuất nhập khẩu tới các thị trường toàn cầu.
