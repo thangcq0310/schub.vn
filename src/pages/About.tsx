@@ -69,7 +69,7 @@ export function About() {
   return (
     <Container>
       <div className="py-16">
-        <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
+        <div>
           <section className="surface-panel rounded-[var(--radius-xl)] p-8 lg:p-10">
             <div className="mb-6 flex items-center gap-4">
               <div className="flex h-14 w-14 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-primary)] text-white shadow-[var(--shadow-panel)]">
@@ -102,17 +102,16 @@ export function About() {
             </div>
           </section>
 
-          <aside className="surface-panel rounded-[var(--radius-xl)] p-8">
-            <h2 className="font-[var(--font-display)] text-2xl text-[var(--color-text)]">Liên hệ</h2>
-            <p className="mt-3 text-[var(--color-text-muted)]">Nếu anh cần checklist, template hoặc định hướng triển khai, SCHub có thể hỗ trợ từ góc nhìn vận hành thực tế.</p>
-            <div className="mt-6 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface-raised)] p-4">
-              <div className="flex items-center gap-3 text-[var(--color-text)]">
-                <Mail className="h-5 w-5 text-[var(--color-secondary)]" />
-                <a href="mailto:chuquangthangftu@gmail.com" className="focus-ring rounded-[var(--radius-sm)] hover:text-[var(--color-primary)]">
-                  chuquangthangftu@gmail.com
-                </a>
-              </div>
+          <aside className="surface-panel mt-8 flex flex-col gap-4 rounded-[var(--radius-xl)] p-6 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="font-[var(--font-display)] text-xl text-[var(--color-text)]">Liên hệ</h2>
+              <p className="mt-1 text-sm text-[var(--color-text-muted)]">Cần checklist, template hoặc định hướng triển khai? SCHub có thể hỗ trợ từ góc nhìn vận hành thực tế.</p>
             </div>
+            <a href="mailto:chuquangthangftu@gmail.com"
+              className="focus-ring inline-flex shrink-0 items-center gap-3 rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface-raised)] px-4 py-3 text-[var(--color-text)] transition-colors hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]">
+              <Mail className="h-5 w-5 text-[var(--color-secondary)]" />
+              chuquangthangftu@gmail.com
+            </a>
           </aside>
         </div>
 
