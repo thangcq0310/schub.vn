@@ -1,6 +1,355 @@
 // Seed data for when Firestore is empty
 export const seedArticles = [
   {
+    id: "17",
+    title: "Nỗi đau dự báo nhu cầu trong doanh nghiệp nông sản — Và cách xử lý tận gốc",
+    slug: "noi đau-du-bao-nhu-cau-nong-san-va-cach-xu-ly-tan-goc",
+    excerpt: "Ngành nông sản tươi sống có lẽ là ngành khó dự báo nhất trong chuỗi cung ứng. FAO ước tính 28–55% rau quả bị thất thoát sau thu hoạch — phần lớn đến từ dự báo sai và đứt gãy chuỗi lạnh.",
+    body: `# Nỗi đau dự báo nhu cầu trong doanh nghiệp nông sản — Và cách xử lý tận gốc
+
+## Giới thiệu
+
+Ngành nông sản tươi sống có lẽ là một trong những ngành **khó dự báo nhất** trong toàn bộ chuỗi cung ứng. Sản phẩm **mau hỏng**, sản xuất phụ thuộc **thời tiết & mùa vụ**, chuỗi cung ứng **phân mảnh**, và thị trường **dao động dữ dội** theo khuyến mãi, xu hướng tiêu dùng.
+
+> 📊 **Thực tế đau lòng:** FAO ước tính **28–55% rau quả bị thất thoát sau thu hoạch** — phần lớn đến từ dự báo sai và đứt gãy chuỗi lạnh, chứ không phải do sản phẩm "xấu".
+
+---
+
+## 6 Nỗi Đau Cốt Lõi & Giải Pháp Xử Lý Tận Gốc
+
+---
+
+### 1. Sản phẩm mau hỏng – Sai một ly, vứt cả lô
+
+**Triệu chứng:**
+- Hàng tồn quá ít → hết hàng, mất khách
+- Hàng tồn quá nhiều → hư hỏng, phải đổ bỏ hoặc bán giảm giá cắt lỗ
+- Quyết định dựa trên cảm tính ("năm ngoái bán được, năm nay nhập y vậy")
+
+**Phân tích gốc rễ:** Không phải do "sản phẩm mau hỏng" — đó là bản chất tự nhiên. Gốc rễ là **thiếu dữ liệu thời gian thực** về hạn sử dụng, độ chín, và tốc độ tiêu thụ theo từng lô hàng cụ thể.
+
+**Giải pháp tận gốc:**
+
+| Giải pháp | Cụ thể |
+|---|---|
+| **FEFO thay vì FIFO** | First Expired First Out — ưu tiên xuất lô có hạn sử dụng ngắn nhất trước, cần hệ thống quản lý lô + ngày hết hạn |
+| **Cảnh báo "cửa sổ tươi" tự động** | ERP gửi alert khi sản phẩm sắp hết thời gian tươi ngon, kích hoạt khuyến mãi / điều chuyển kho kịp thời |
+| **Dynamic pricing** | Tự động giảm giá theo độ tươi còn lại (như siêu thị Nhật làm với sushi, cơm hộp) |
+
+---
+
+### 2. Dự báo "xa rời thực địa" – Trồng một đằng, bán một nẻo
+
+**Triệu chứng:**
+- Dự báo làm trên Excel, cập nhật 1 lần/tháng, trong khi nhu cầu thay đổi từng ngày
+- Bộ phận sales biết khách sắp có promotion lớn, nhưng bên thu mua không biết → đặt hàng thiếu
+- POS (điểm bán) không kết nối với kế hoạch thu hoạch
+
+**Phân tích gốc rễ:** Không phải do "con người kém" mà do **dữ liệu bị chia cắt theo silo phòng ban**. Sales có tín hiệu thị trường, nhưng thông tin không chảy ngược về sản xuất & thu mua kịp thời.
+
+**Giải pháp tận gốc:**
+
+| Giải pháp | Cụ thể |
+|---|---|
+| **Hệ thống S&OP tích hợp** | Sales & Operations Planning — một quy trình + một nền tảng duy nhất để sales, marketing, sản xuất, tài chính cùng ngồi lại dự báo dựa trên một bộ dữ liệu chung |
+| **Kết nối POS → Harvest Plan** | Dữ liệu từ quầy bán lẻ chảy thẳng về hoạch định thu hoạch/vùng trồng, tự động cập nhật hằng ngày |
+| **Rolling Forecast** | Thay vì dự báo cố định 1 lần/tháng, lăn liên tục mỗi tuần, luôn dùng 4-6 tuần gần nhất làm đầu vào |
+
+---
+
+### 3. Thời tiết & khí hậu – "Ông trời" làm loạn mọi kế hoạch
+
+**Triệu chứng:**
+- Mưa trái mùa → thu hoạch chậm 2 tuần → vỡ cam kết giao hàng
+- Nắng nóng bất thường → sản lượng giảm 30% → không đủ hàng cho siêu thị
+- Không có phương án B khi thời tiết xấu
+
+**Phân tích gốc rễ:** Đa số doanh nghiệp dùng dữ liệu thời tiết **chung chung (regional)**, không đủ mịn để dự báo cho từng cánh đồng cụ thể. Hơn nữa, kế hoạch sản xuất là "tĩnh" — không có kịch bản dự phòng.
+
+**Giải pháp tận gốc:**
+
+| Giải pháp | Cụ thể |
+|---|---|
+| **Dự báo vi khí hậu (microclimate)** | Dùng IoT cảm biến độ ẩm đất, nhiệt độ, lượng mưa tại chính cánh đồng → AI dự báo cửa sổ thu hoạch tối ưu |
+| **Scenario Planning** | Lập sẵn 3 kịch bản (tốt / trung bình / xấu) cho mỗi vụ, kèm danh sách nhà cung cấp dự phòng, kho lạnh dự phòng, tuyến vận chuyển thay thế |
+| **Diversified Sourcing** | Không phụ thuộc 1 vùng trồng; cam kết bao tiêu nhiều vùng địa lý khác nhau để bù đắp khi 1 vùng mất mùa |
+
+---
+
+### 4. Chuỗi lạnh đứt đoạn – Mỗi khâu một "ốc đảo" dữ liệu
+
+**Triệu chứng:**
+- Xe lạnh đến trễ, nhiệt độ bị phá vỡ nhưng không ai biết cho đến khi khách trả hàng
+- Kho lạnh không đồng bộ: nơi chất đầy, nơi trống rỗng
+- Không biết lô hàng đang ở đâu, tình trạng nhiệt độ ra sao
+
+**Phân tích gốc rễ:** "Cold chain" thực ra không phải một chuỗi — nó là tập hợp các mắt xích rời rạc, mỗi bên tự quản lý một đoạn, **không chia sẻ dữ liệu** cho nhau.
+
+**Giải pháp tận gốc:**
+
+| Giải pháp | Cụ thể |
+|---|---|
+| **IoT xuyên suốt chuỗi lạnh** | Cảm biến nhiệt/độ ẩm gắn trên từng pallet, phát dữ liệu real-time lên cloud **dùng chung** giữa nông trại → vận tải → kho → siêu thị |
+| **Control Tower** | Một "tháp kiểm soát" tập trung: màn hình dashboard hiển thị vị trí + nhiệt độ + thời gian dự kiến của mọi lô hàng đang lưu thông |
+| **Cảnh báo chủ động** | Khi nhiệt độ vượt ngưỡng, hệ thống tự động gửi alert → điều phối viên có thể chuyển hướng xe, tìm kho lạnh gần nhất |
+
+---
+
+### 5. Truy xuất nguồn gốc – "Biết rồi, khổ lắm, nói mãi"
+
+**Triệu chứng:**
+- Khách hàng (đặc biệt là siêu thị lớn, xuất khẩu EU/US) yêu cầu truy xuất từng lô, từng ngày thu hoạch
+- Khi bị trả hàng, không biết lỗi phát sinh ở đâu: giống? đồng ruộng? vận chuyển? kho?
+- Làm báo cáo truy xuất mất 2-3 ngày, khách không chờ được
+
+**Phân tích gốc rễ:** Dữ liệu nằm rải rác trong sổ tay, file Excel, giấy chứng nhận photo. Không có **một ID duy nhất** xâu chuỗi từ hạt giống → cây trồng → thu hoạch → đóng gói → vận chuyển → kệ hàng.
+
+**Giải pháp tận gốc:**
+
+| Giải pháp | Cụ thể |
+|---|---|
+| **Blockchain / Digital Ledger** | Mỗi lô hàng có 1 mã hash duy nhất, mỗi khâu ghi 1 block không thể sửa → truy xuất trong **vài giây** |
+| **QR Code cấp lô** | Mỗi thùng hàng có QR liên kết đến toàn bộ lịch sử: ngày thu hoạch, tên nông dân, loại phân bón, chứng nhận |
+| **Hệ thống quản lý chứng nhận tự động** | ERP tự động theo dõi hạn chứng nhận (GlobalGAP, Organic...), cảnh báo trước khi hết hạn |
+
+---
+
+### 6. Mùa vụ & biến động cung-cầu – "Được mùa mất giá, được giá mất mùa"
+
+**Triệu chứng:**
+- Vào chính vụ: sản lượng quá nhiều → giá rớt thảm → phải "giải cứu"
+- Trái vụ: khan hàng → giá cao nhưng không có hàng để bán
+- Không dự báo được đỉnh/đáy để lên kế hoạch chế biến sâu, trữ kho
+
+**Phân tích gốc rễ:** Đây là vấn đề **cấu trúc**: sản xuất nông nghiệp theo mùa tự nhiên nhưng tiêu dùng diễn ra quanh năm. Thiếu cơ chế **điều tiết** giữa chính vụ và trái vụ.
+
+**Giải pháp tận gốc:**
+
+| Giải pháp | Cụ thể |
+|---|---|
+| **Chế biến sâu (value-added processing)** | Đầu tư dây chuyền sấy, cấp đông, ép nước, nghiền bột... để hấp thụ sản lượng dư thừa chính vụ |
+| **Contract farming có điều tiết** | Ký hợp đồng bao tiêu với nông dân **theo lịch xuống giống so le** — chia vùng trồng thành nhiều đợt gieo trồng cách nhau 2-3 tuần |
+| **AI Demand Sensing** | Dùng machine learning phân tích tín hiệu ngầm (xu hướng mạng xã hội, thời tiết, ngày lễ, giá đối thủ...) |
+| **Đa dạng thị trường** | Không chỉ bán nội địa — kết nối sàn TMĐT xuyên biên giới, ký hợp đồng xuất khẩu |
+
+---
+
+## Bức Tranh Tổng Thể
+
+\`\`\`
+                      GIẢI PHÁP TẬN GỐC
+                      ═══════════════════
+
+   ERP chuyên ngành nông sản (AgriERP / Fresh Produce ERP)
+   ┌──────────────────────────────────────────────────────┐
+   │  AI Forecasting  │  IoT Cold Chain  │  Blockchain   │
+   │  (dự báo thông   │  (giám sát       │  (truy xuất   │
+   │   minh)          │   nhiệt độ)      │   nguồn gốc)  │
+   ├──────────────────────────────────────────────────────┤
+   │  Control Tower   │  S&OP tích hợp   │  Scenario     │
+   │  (tháp kiểm      │  (sales + mua    │  Planning     │
+   │   soát)          │   + sx cùng bàn) │  (phương án B)│
+   └──────────────────────────────────────────────────────┘
+         │                                          │
+         ▼                                          ▼
+   Ra quyết định                          Linh hoạt
+   dựa trên dữ liệu                      thích ứng thời
+   thời gian thực                         tiết, mùa vụ
+\`\`\`
+
+---
+
+## Tổng kết: Công thức 3 trụ cột
+
+| Trụ cột | Mô tả | Ví dụ cụ thể |
+|---|---|---|
+| **Số hóa + Tích hợp** | Mọi dữ liệu (ruộng, kho, xe, quầy) trên 1 nền tảng, real-time | ERP nông sản + IoT + QR code |
+| **AI & Predictive** | Máy học từ quá khứ, bắt tín hiệu tương lai sớm | Demand sensing, dự báo vi khí hậu |
+| **Hợp tác chuỗi** | Chia sẻ dữ liệu & rủi ro giữa nông dân – doanh nghiệp – nhà bán lẻ | Contract farming, control tower dùng chung |`,
+    type: "article" as const,
+    tags: ["Demand Planning", "Forecasting", "Agriculture"],
+    authorName: "SCHub.vn",
+    readTimeMinutes: 12,
+    featured: true,
+    publishedAt: { seconds: 1753036800, nanoseconds: 0 },
+  },
+  {
+    id: "18",
+    title: "Chiến lược mua hàng khi nông sản nhảy giá hàng ngày",
+    slug: "chiens-luoc-mua-hang-khi-nong-san-nhay-gia-hang-ngay",
+    excerpt: "Giá nông sản thay đổi từng ngày — thậm chí từng phiên chợ. Bài viết phân tích mối quan hệ hai chiều giữa giá và dự báo, cùng 4 chiến lược mua hàng hybrid giúp doanh nghiệp kiểm soát chi phí.",
+    body: `# Chiến lược mua hàng khi nông sản nhảy giá hàng ngày
+
+## Giới thiệu
+
+Khi giá thay đổi từng ngày — thậm chí từng phiên chợ — không thể có **một** chiến lược mua cố định. Cần một **bộ chiến lược lai (hybrid)** và quy tắc kích hoạt rõ ràng.
+
+---
+
+## Phần 1: Giá cả ảnh hưởng đến sản lượng dự báo như thế nào?
+
+### Cơ chế "vòng xoáy" giá – dự báo
+
+\`\`\`
+                     GIÁ TĂNG ĐỘT BIẾN
+                           │
+           ┌───────────────┼───────────────┐
+           ▼               ▼               ▼
+      Nhu cầu mua      Doanh nghiệp     Nông dân
+      giảm (co dãn)    hạ dự báo        găm hàng
+           │               │               │
+           └───────────────┼───────────────┘
+                           ▼
+                  DỰ BÁO BỊ "BẺ CONG"
+                  (Sai lệch càng xa thực tế)
+\`\`\`
+
+**Ba tác động chính:**
+
+| Tác động | Cơ chế | Hệ quả lên dự báo |
+|---|---|---|
+| **Co dãn của cầu** | Giá tăng → người tiêu dùng mua ít hơn hoặc chuyển sang sản phẩm thay thế | Mô hình dự báo dựa trên lịch sử doanh số **không còn đúng** |
+| **Hiệu ứng "bầy đàn"** | Giá đang lên → khách hàng B2B đổ xô đặt hàng sớm → tạo cầu ảo | Dự báo bị **phóng đại tạm thời**, rồi sụp đổ khi giá hạ nhiệt |
+| **Tâm lý đầu cơ** | Giá lên → nông dân găm hàng chờ giá cao hơn → cung giảm nhân tạo | Mô hình cung–cầu truyền thống **gãy hoàn toàn** |
+
+### Giải pháp: Mô hình dự báo "nhạy giá" (Price-Sensitive Forecasting)
+
+| Cấp độ | Cách làm | Ví dụ cụ thể |
+|---|---|---|
+| **Cơ bản** | Thêm biến giá vào mô hình hồi quy | \`Doanh số = α + β1×Giá + β2×Mùa_vụ + β3×Khuyến_mãi\` |
+| **Trung cấp** | Tính hệ số co dãn giá (Price Elasticity) theo từng mặt hàng | Cà chua: ε = -1.8 (co dãn mạnh). Dưa hấu: ε = -0.4 (ít co dãn) |
+| **Nâng cao** | Machine Learning với "price-aware" features | Mô hình XGBoost/LSTM nhận đầu vào: giá hôm nay, giá 7 ngày trước, tốc độ thay đổi giá... |
+
+---
+
+## Phần 2: 4 Chiến lược mua hàng
+
+### Chiến lược 1: Portfolio Mix (Kết hợp đa kênh mua)
+
+Đây là chiến lược **nền tảng** — không bao giờ bỏ tất cả trứng vào một giỏ.
+
+| Kênh mua | Tỷ trọng gợi ý | Khi nào dùng nhiều hơn? | Rủi ro |
+|---|---|---|---|
+| **Hợp đồng kỳ hạn (Forward Contract)** | 40–60% | Khi thị trường đang lên, giá có xu hướng tăng dài hạn | Giá spot xuống thấp hơn giá forward |
+| **Mua giao ngay (Spot Buying)** | 20–30% | Khi giá đang giảm, thị trường dư cung | Giá spot vọt lên đột ngột |
+| **Hợp đồng linh hoạt (Flex Contract)** | 10–20% | Luôn duy trì để "điều tiết" | Cần quan hệ đối tác tốt |
+| **Tự sản xuất / Liên kết vùng trồng** | 10–20% | Doanh nghiệp có vùng trồng riêng | Rủi ro mùa vụ, thời tiết |
+
+**Ví dụ minh họa:** Doanh nghiệp rau củ quả, nhu cầu 100 tấn/tháng
+
+- 50 tấn ── Hợp đồng forward 3 tháng, giá cố định
+- 25 tấn ── Mua spot hàng ngày từ chợ đầu mối
+- 15 tấn ── Flex contract: cam kết mua tối thiểu, giá = avg(spot 7 ngày) ± 5%
+- 10 tấn ── Vùng trồng liên kết, giá sàn bảo hộ nông dân
+
+---
+
+### Chiến lược 2: Trigger-Based Buying (Mua hàng theo "ngưỡng kích hoạt")
+
+Đặt ra các **mức giá kích hoạt** (trigger price) được tính toán từ dữ liệu lịch sử.
+
+| Tín hiệu | Hành động | Logic |
+|---|---|---|
+| 🟢 Giá ≤ **P25** (phân vị 25% của 12 tháng) | **Mua gấp đôi** — gom hàng, đàm phán hợp đồng dài hạn | Đây là đáy tương đối, cơ hội khóa giá thấp |
+| 🟡 **P25 < giá < P75** | Mua bình thường theo kế hoạch | Vùng giá "fair", không cần phản ứng đặc biệt |
+| 🔴 Giá ≥ **P75** | **Giảm mua spot, kích hoạt forward** — chỉ mua tối thiểu cầm chừng | Đang vào vùng giá cao |
+| 🚨 Giá ≥ **P90** (sốt) | **Dừng mua spot**, xả hàng tồn kho nếu có lãi | Giá bong bóng — mua lúc này là "bắt dao rơi" |
+
+> 💡 **P25, P75, P90** là các phân vị (percentile) từ chuỗi giá lịch sử 12 tháng.
+
+---
+
+### Chiến lược 3: Hedging & Bảo hiểm giá
+
+| Công cụ | Mô tả | Phù hợp với |
+|---|---|---|
+| **Hợp đồng tương lai (Futures)** | Mua/bán trên sàn hàng hóa với giá khóa trước | Doanh nghiệp xuất khẩu nông sản khô |
+| **Hợp đồng quyền chọn (Options)** | Mua quyền (không nghĩa vụ) mua hàng ở giá X trong tương lai | Doanh nghiệp muốn bảo vệ giá trần |
+| **Hợp đồng CFD / Swap** | Hoán đổi chênh lệch giá với đối tác tài chính | Doanh nghiệp muốn hedge thuần túy tài chính |
+| **Bảo hiểm giá hàng hóa** | Trả phí bảo hiểm, nếu giá vượt ngưỡng cam kết thì được bồi thường | Doanh nghiệp vừa, không muốn phức tạp |
+
+---
+
+### Chiến lược 4: Dynamic Contracting (Hợp đồng "thông minh")
+
+| Loại hợp đồng linh hoạt | Cách hoạt động | Dùng khi |
+|---|---|---|
+| **Giá thả nổi theo chỉ số (Index-Linked)** | Giá mua = Giá tham chiếu chợ đầu mối × Hệ số điều chỉnh (±5-10%) | Cả 2 bên cùng chấp nhận biến động |
+| **Giá sàn – giá trần (Collar Contract)** | Cam kết: giá không thấp hơn X, không cao hơn Y | Mối quan hệ đối tác dài hạn |
+| **Giá trung bình động (Moving Average Price)** | Giá mua = Trung bình giá spot 7/14/30 ngày gần nhất | Giá biến động mạnh nhưng không có xu hướng dài hạn |
+| **Giá 2 phần (Two-Part Tariff)** | Phần cố định + Phần biến đổi theo giá thị trường | Đảm bảo nông dân có thu nhập tối thiểu |
+
+---
+
+## Phần 3: Playbook mua hàng ngày (5 bước)
+
+\`\`\`
+⏰ 6:00 AM: Nhận báo cáo giá thị trường
+        │
+        ▼
+📊 BƯỚC 1 — Phân loại tín hiệu giá
+   • Giá hôm nay vs. P25/P50/P75 (12 tháng)
+   • Tốc độ thay đổi: tăng/giảm bao nhiêu % trong 3-5 ngày qua?
+   • So sánh với giá forward đã ký → chênh lệch?
+        │
+        ▼
+🔮 BƯỚC 2 — Điều chỉnh dự báo sản lượng
+   • Áp dụng hệ số co dãn giá: Dự báo mới = Dự báo cũ × (1 + ε × %ΔGiá)
+   • Ví dụ: ε = -0.8, giá tăng 10% → dự báo giảm 8%
+   • Kiểm tra chéo với tín hiệu từ sales
+        │
+        ▼
+🛒 BƯỚC 3 — Phân bổ tỷ trọng kênh mua
+   ┌──────────────────────────────────────────────────┐
+   │  Giá ≤ P25  →  Spot 60% | Forward 20% | Flex 20% │
+   │  P25 < Giá < P75 → Spot 30% | Forward 50% | Flex 20% │
+   │  Giá ≥ P75  →  Spot 10% | Forward 70% | Flex 20% │
+   │  Giá ≥ P90  →  Spot 0%  | Forward 80% | Flex 20% │
+   └──────────────────────────────────────────────────┘
+        │
+        ▼
+🤝 BƯỚC 4 — Đàm phán & Chốt đơn
+   • Gọi 3 nhà cung cấp, so sánh giá + chất lượng + thời gian giao
+   • Ưu tiên nhà cung cấp có flex contract
+        │
+        ▼
+📝 BƯỚC 5 — Ghi nhận & học hỏi
+   • Ghi lại: Giá mua thực tế, lý do chọn chiến lược
+   • Cuối tuần: So sánh giá mua thực tế vs giá trung bình thị trường
+   • Cuối tháng: Đánh giá hiệu quả portfolio mix
+\`\`\`
+
+---
+
+## Kết quả mô phỏng: 12 Tuần – 100 Tấn/Tháng Cà Chua
+
+| Chỉ số | Chiến lược A (100% spot) | Chiến lược B (Portfolio Mix) |
+|---|---|---|
+| **Tổng chi phí** | 4.76 tỷ | 4.37 tỷ |
+| **Tiết kiệm** | - | 400 triệu (8.3%) |
+| **Biến động chi phí** | Cao | Giảm 66% |
+
+> 💡 **Tỷ lệ claim/phí bảo hiểm:** 21 triệu "thua" ở tuần 9 vs 397 triệu tiết kiệm khi giá sốt = **19 lần**.
+
+---
+
+## 5 Nguyên tắc vàng
+
+| # | Nguyên tắc | Tại sao? |
+|---|---|---|
+| 1 | **Không bao giờ mua 100% spot** | Một ngày giá vọt 30% là "cháy" cả tháng lợi nhuận |
+| 2 | **Luôn có trigger price** | Quyết định dựa trên dữ liệu, không cảm tính |
+| 3 | **Dự báo phải "nhạy giá"** | Mô hình không có biến giá = mô hình mù |
+| 4 | **Quan hệ > Giao dịch** | Flex contract, chia sẻ rủi ro với nông dân/nhà cung cấp bền hơn |
+| 5 | **Dữ liệu là vũ khí** | Chuỗi giá lịch sử 12-24 tháng + AI forecasting = lợi thế cạnh tranh |`,
+    type: "article" as const,
+    tags: ["Procurement", "Pricing", "Forecasting"],
+    authorName: "SCHub.vn",
+    readTimeMinutes: 15,
+    featured: true,
+    publishedAt: { seconds: 1752950400, nanoseconds: 0 },
+  },
+  {
     id: "1",
     title: "Vì sao doanh nghiệp vừa tồn kho cao vừa thiếu hàng?",
     slug: "vi-sao-ton-kho-cao-van-thieu-hang",
