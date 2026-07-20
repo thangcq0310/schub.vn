@@ -5,7 +5,6 @@ import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import Container from "../components/layout/Container"
 import { getArticleBySlug, getAllArticles } from "../data/articles"
-import type { Article } from "../data/articles"
 import { VideoEmbed } from "../components/VideoEmbed"
 
 export function ArticleDetail() {

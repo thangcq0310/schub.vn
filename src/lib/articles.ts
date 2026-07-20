@@ -83,7 +83,7 @@ export async function createArticle(data: Article): Promise<string | null> {
     return null
   }
   try {
-    const { id, ...rest } = data
+    const rest = data
     const docRef = await addDoc(collection(db, COLLECTION), {
       ...rest,
       publishedAt: Timestamp.fromMillis(rest.publishedAt),

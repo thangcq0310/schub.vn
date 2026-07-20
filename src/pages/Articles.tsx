@@ -3,7 +3,6 @@ import { useSearchParams } from "react-router-dom"
 import Container from "../components/layout/Container"
 import ArticleCard from "../components/cards/ArticleCard"
 import { getAllArticles } from "../data/articles"
-import type { Article } from "../data/articles"
 
 const topics = ["Tất cả", "Warehouse", "Inventory", "Cold Chain", "FEFO/FIFO", "WMS", "3PL", "S&OP", "Demand Planning", "Procurement", "Logistics Cost", "Digital SCM"]
 
