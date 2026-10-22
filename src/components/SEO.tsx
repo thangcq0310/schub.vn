@@ -1,4 +1,16 @@
 import { Helmet } from "react-helmet-async"
+import { useLang } from "@/lib/i18n"
+
+const defaults = {
+  en: {
+    title: "SCHub.vn — Practical Supply Chain Knowledge Hub",
+    description: "Practical supply chain knowledge, Excel templates, eBooks and consulting services for businesses in Vietnam.",
+  },
+  vi: {
+    title: "SCHub.vn — Kiến thức Supply Chain cho người Việt",
+    description: "Chia sẻ kiến thức Supply Chain thực chiến, template Excel, eBook, và dịch vụ tư vấn cho doanh nghiệp Việt Nam.",
+  },
+}
 
 interface SEOProps {
   title?: string
@@ -9,13 +21,16 @@ interface SEOProps {
 }
 
 export function SEO({
-  title = "SCM Thực Chiến - Kiến Thức & Công Cụ Quản Trị Chuỗi Cung Ứng",
-  description = "Chia sẻ kiến thức Supply Chain thực chiến, template Excel, eBook, và dịch vụ tư vấn cho doanh nghiệp Việt Nam.",
+  title,
+  description,
   image = "/og-image.png",
-  url = "https://scm-thuc-chien.com",
+  url = "https://schub.vn",
   type = "website",
 }: SEOProps) {
-  const siteName = "SCM Thực Chiến"
+  const { lang } = useLang()
+  title ??= defaults[lang].title
+  description ??= defaults[lang].description
+  const siteName = "SCHub.vn"
 
   return (
     <Helmet>

@@ -1,3 +1,6 @@
+import type { Localized } from "@/lib/i18n"
+import type { ContentStatus } from "./status"
+
 // Seed data for when Firestore is empty
 export const seedArticles = [
   {
@@ -1297,122 +1300,173 @@ Trước khi triển khai S&OP, xác định doanh nghiệp thuộc loại nào.
   },
 ]
 
-export const seedBooks = [
+export interface Product {
+  id: string
+  title: Localized
+  slug: string
+  category: Localized
+  status: ContentStatus
+  description: Localized
+  price: Localized
+  free?: boolean
+  ctaLabel: Localized
+  featured: boolean
+  addedAt: { seconds: number; nanoseconds: number }
+}
+
+const notifyCta: Localized = { en: "Notify me at launch", vi: "Nhận thông báo khi ra mắt" }
+const priceTba: Localized = { en: "Price coming soon", vi: "Sắp công bố" }
+const excelTemplate: Localized = { en: "Excel Template", vi: "Template Excel" }
+const playbook: Localized = { en: "Playbook / eBook", vi: "Playbook / eBook" }
+
+export const seedBooks: Product[] = [
   {
     id: "1",
-    title: "ABC/XYZ Inventory Analysis Template",
+    title: { en: "ABC/XYZ Inventory Analysis Template", vi: "ABC/XYZ Inventory Analysis Template" },
     slug: "abc-xyz-inventory-analysis-template",
-    category: "Template Excel",
-    status: "Đang phát triển",
-    description:
-      "Template giúp phân loại SKU theo giá trị và độ biến động nhu cầu, từ đó xác định nhóm hàng cần kiểm soát tồn kho chặt hơn.",
-    price: "Sắp công bố",
-    ctaLabel: "Nhận thông báo khi ra mắt",
+    category: excelTemplate,
+    status: "in-progress",
+    description: {
+      en: "A template that classifies SKUs by value and demand variability, so you know which items need tighter inventory control.",
+      vi: "Template giúp phân loại SKU theo giá trị và độ biến động nhu cầu, từ đó xác định nhóm hàng cần kiểm soát tồn kho chặt hơn.",
+    },
+    price: priceTba,
+    ctaLabel: notifyCta,
     featured: true,
     addedAt: { seconds: 1704067200, nanoseconds: 0 },
   },
   {
     id: "2",
-    title: "3PL SLA & Cost Evaluation Pack",
+    title: { en: "3PL SLA & Cost Evaluation Pack", vi: "3PL SLA & Cost Evaluation Pack" },
     slug: "3pl-sla-cost-evaluation-pack",
-    category: "SOP Pack",
-    status: "Đang phát triển",
-    description:
-      "Bộ biểu mẫu giúp đánh giá nhà cung cấp kho thuê/3PL theo SLA, chi phí, độ chính xác tồn kho, xử lý sự cố và năng lực báo cáo.",
-    price: "Sắp công bố",
-    ctaLabel: "Nhận thông báo khi ra mắt",
+    category: { en: "SOP Pack", vi: "SOP Pack" },
+    status: "in-progress",
+    description: {
+      en: "Forms to evaluate warehouse/3PL providers on SLA, cost, inventory accuracy, incident handling and reporting capability.",
+      vi: "Bộ biểu mẫu giúp đánh giá nhà cung cấp kho thuê/3PL theo SLA, chi phí, độ chính xác tồn kho, xử lý sự cố và năng lực báo cáo.",
+    },
+    price: priceTba,
+    ctaLabel: notifyCta,
     featured: true,
     addedAt: { seconds: 1703980800, nanoseconds: 0 },
   },
   {
     id: "3",
-    title: "Supply Chain KPI Dashboard Starter Pack",
+    title: { en: "Supply Chain KPI Dashboard Starter Pack", vi: "Supply Chain KPI Dashboard Starter Pack" },
     slug: "supply-chain-kpi-dashboard-starter-pack",
-    category: "Dashboard Pack",
-    status: "Đang phát triển",
-    description:
-      "Bộ khung KPI và dashboard starter cho Planning, Procurement, Inventory, Warehouse và Logistics Cost.",
-    price: "Sắp công bố",
-    ctaLabel: "Nhận thông báo khi ra mắt",
+    category: { en: "Dashboard Pack", vi: "Dashboard Pack" },
+    status: "in-progress",
+    description: {
+      en: "A KPI framework and starter dashboards for Planning, Procurement, Inventory, Warehouse and Logistics Cost.",
+      vi: "Bộ khung KPI và dashboard starter cho Planning, Procurement, Inventory, Warehouse và Logistics Cost.",
+    },
+    price: priceTba,
+    ctaLabel: notifyCta,
     featured: true,
     addedAt: { seconds: 1703894400, nanoseconds: 0 },
   },
   {
     id: "4",
-    title: "Master Data Audit Checklist",
+    title: { en: "Master Data Audit Checklist", vi: "Master Data Audit Checklist" },
     slug: "master-data-audit-checklist",
-    category: "Checklist Pack",
-    status: "Sắp ra mắt",
-    description:
-      "Checklist rà soát master data trước khi triển khai SAP/WMS, tập trung vào UoM, gross weight, batch rule, shelf-life và location master.",
-    price: "Miễn phí",
-    ctaLabel: "Nhận checklist",
+    category: { en: "Checklist Pack", vi: "Checklist Pack" },
+    status: "coming-soon",
+    description: {
+      en: "A master data review checklist before an SAP/WMS rollout, focused on UoM, gross weight, batch rules, shelf life and location master.",
+      vi: "Checklist rà soát master data trước khi triển khai SAP/WMS, tập trung vào UoM, gross weight, batch rule, shelf-life và location master.",
+    },
+    price: { en: "Free", vi: "Miễn phí" },
+    free: true,
+    ctaLabel: { en: "Get the checklist", vi: "Nhận checklist" },
     featured: false,
     addedAt: { seconds: 1703808000, nanoseconds: 0 },
   },
   {
     id: "5",
-    title: "S&OP Calendar & Meeting Pack",
+    title: { en: "S&OP Calendar & Meeting Pack", vi: "S&OP Calendar & Meeting Pack" },
     slug: "sop-calendar-meeting-pack",
-    category: "Playbook / eBook",
-    status: "Sắp ra mắt",
-    description:
-      "Bộ khung lịch họp, agenda và nguyên tắc ra quyết định giúp doanh nghiệp bắt đầu S&OP một cách đơn giản.",
-    price: "Sắp công bố",
-    ctaLabel: "Nhận thông báo khi ra mắt",
+    category: playbook,
+    status: "coming-soon",
+    description: {
+      en: "Meeting calendar, agendas and decision rules that help a business start S&OP simply.",
+      vi: "Bộ khung lịch họp, agenda và nguyên tắc ra quyết định giúp doanh nghiệp bắt đầu S&OP một cách đơn giản.",
+    },
+    price: priceTba,
+    ctaLabel: notifyCta,
     featured: false,
     addedAt: { seconds: 1703721600, nanoseconds: 0 },
   },
   {
     id: "6",
-    title: "30 Công Cụ Quản Trị Supply Chain Thực Chiến",
+    title: { en: "30 Practical Supply Chain Management Tools", vi: "30 Công Cụ Quản Trị Supply Chain Thực Chiến" },
     slug: "30-cong-cu-quan-tri-supply-chain-thuc-chien",
-    category: "Playbook / eBook",
-    status: "Đang phát triển",
-    description:
-      "Mini eBook hệ thống hóa 30 công cụ thực chiến cho Planning, Inventory, Warehouse, Logistics Cost và KPI, giúp đội ngũ Supply Chain áp dụng nhanh vào vận hành doanh nghiệp Việt Nam.",
-    price: "199.000 – 399.000 VND",
-    ctaLabel: "Nhận thông báo khi ra mắt",
+    category: playbook,
+    status: "in-progress",
+    description: {
+      en: "A mini eBook that organizes 30 practical tools for Planning, Inventory, Warehouse, Logistics Cost and KPIs, so supply chain teams can apply them quickly in Vietnamese businesses.",
+      vi: "Mini eBook hệ thống hóa 30 công cụ thực chiến cho Planning, Inventory, Warehouse, Logistics Cost và KPI, giúp đội ngũ Supply Chain áp dụng nhanh vào vận hành doanh nghiệp Việt Nam.",
+    },
+    price: { en: "199,000 – 399,000 VND", vi: "199.000 – 399.000 VND" },
+    ctaLabel: notifyCta,
     featured: true,
     addedAt: { seconds: 1703635200, nanoseconds: 0 },
   },
   {
     id: "7",
-    title: "Forecasting Starter Template",
+    title: { en: "Forecasting Starter Template", vi: "Forecasting Starter Template" },
     slug: "forecasting-starter-template",
-    category: "Template Excel",
-    status: "Đang phát triển",
-    description:
-      "Template starter cho moving average, weighted moving average, exponential smoothing và forecast error.",
-    price: "Sắp công bố",
-    ctaLabel: "Nhận thông báo khi ra mắt",
+    category: excelTemplate,
+    status: "in-progress",
+    description: {
+      en: "A starter template for moving average, weighted moving average, exponential smoothing and forecast error.",
+      vi: "Template starter cho moving average, weighted moving average, exponential smoothing và forecast error.",
+    },
+    price: priceTba,
+    ctaLabel: notifyCta,
     featured: false,
     addedAt: { seconds: 1703548800, nanoseconds: 0 },
   },
   {
     id: "8",
-    title: "Demand Plan Template",
+    title: { en: "Demand Plan Template", vi: "Demand Plan Template" },
     slug: "demand-plan-template",
-    category: "Template Excel",
-    status: "Đang phát triển",
-    description:
-      "Template giúp ghi nhận demand history, forecast, commercial adjustment, assumption log và consensus demand plan.",
-    price: "Sắp công bố",
-    ctaLabel: "Nhận thông báo khi ra mắt",
+    category: excelTemplate,
+    status: "in-progress",
+    description: {
+      en: "A template to record demand history, forecast, commercial adjustments, an assumption log and the consensus demand plan.",
+      vi: "Template giúp ghi nhận demand history, forecast, commercial adjustment, assumption log và consensus demand plan.",
+    },
+    price: priceTba,
+    ctaLabel: notifyCta,
     featured: false,
     addedAt: { seconds: 1703462400, nanoseconds: 0 },
   },
 ]
 
-export const seedTools = [
+export interface Tool {
+  id: string
+  name: string
+  slug: string
+  category: string
+  status: ContentStatus
+  description: Localized
+  ctaLabel: Localized
+  featured: boolean
+  addedAt: { seconds: number; nanoseconds: number }
+}
+
+export const seedTools: Tool[] = [
   {
     id: "1",
     name: "ABC/XYZ Calculator",
     slug: "abc-xyz-calculator",
     category: "Inventory",
-    status: "Đang phát triển",
-    description: "Khung tính nhanh giúp phân loại SKU theo giá trị và biến động nhu cầu để ưu tiên kiểm soát tồn kho.",
-    ctaLabel: "Nhận thông báo khi ra mắt",
+    status: "in-progress",
+    description: {
+      en: "A quick calculator that classifies SKUs by value and demand variability to prioritize inventory control.",
+      vi: "Khung tính nhanh giúp phân loại SKU theo giá trị và biến động nhu cầu để ưu tiên kiểm soát tồn kho.",
+    },
+    ctaLabel: notifyCta,
     featured: true,
     addedAt: { seconds: 1704067200, nanoseconds: 0 },
   },
@@ -1421,9 +1475,12 @@ export const seedTools = [
     name: "Safety Stock Calculator",
     slug: "safety-stock-calculator",
     category: "Planning",
-    status: "Sắp ra mắt",
-    description: "Công cụ starter để ước lượng safety stock theo lead time, độ biến động nhu cầu và service level mục tiêu.",
-    ctaLabel: "Nhận thông báo khi ra mắt",
+    status: "coming-soon",
+    description: {
+      en: "A starter tool to estimate safety stock from lead time, demand variability and the target service level.",
+      vi: "Công cụ starter để ước lượng safety stock theo lead time, độ biến động nhu cầu và service level mục tiêu.",
+    },
+    ctaLabel: notifyCta,
     featured: true,
     addedAt: { seconds: 1703980800, nanoseconds: 0 },
   },
@@ -1432,9 +1489,12 @@ export const seedTools = [
     name: "3PL Cost Estimator",
     slug: "3pl-cost-estimator",
     category: "3PL",
-    status: "Đang phát triển",
-    description: "Bộ khung so sánh chi phí 3PL theo handling, storage, outbound, SLA và các chi phí ẩn thường bị bỏ sót.",
-    ctaLabel: "Nhận thông báo khi ra mắt",
+    status: "in-progress",
+    description: {
+      en: "Compare 3PL costs across handling, storage, outbound, SLA and the hidden costs that are often missed.",
+      vi: "Bộ khung so sánh chi phí 3PL theo handling, storage, outbound, SLA và các chi phí ẩn thường bị bỏ sót.",
+    },
+    ctaLabel: notifyCta,
     featured: true,
     addedAt: { seconds: 1703894400, nanoseconds: 0 },
   },
@@ -1443,9 +1503,12 @@ export const seedTools = [
     name: "Logistics Cost per Ton Calculator",
     slug: "logistics-cost-per-ton-calculator",
     category: "Logistics Cost",
-    status: "Sắp ra mắt",
-    description: "Starter calculator giúp chuẩn hóa cách nhìn chi phí logistics trên mỗi tấn, mỗi chuyến và mỗi SKU chính.",
-    ctaLabel: "Nhận thông báo khi ra mắt",
+    status: "coming-soon",
+    description: {
+      en: "A starter calculator that standardizes how you look at logistics cost per ton, per trip and per key SKU.",
+      vi: "Starter calculator giúp chuẩn hóa cách nhìn chi phí logistics trên mỗi tấn, mỗi chuyến và mỗi SKU chính.",
+    },
+    ctaLabel: notifyCta,
     featured: false,
     addedAt: { seconds: 1703808000, nanoseconds: 0 },
   },
@@ -1454,9 +1517,12 @@ export const seedTools = [
     name: "Warehouse Capacity Calculator",
     slug: "warehouse-capacity-calculator",
     category: "Warehouse",
-    status: "Đang phát triển",
-    description: "Khung tính dung lượng kho theo pallet position, zone usage, slotting logic và tốc độ quay vòng tồn kho.",
-    ctaLabel: "Nhận thông báo khi ra mắt",
+    status: "in-progress",
+    description: {
+      en: "Calculate warehouse capacity from pallet positions, zone usage, slotting logic and inventory turnover.",
+      vi: "Khung tính dung lượng kho theo pallet position, zone usage, slotting logic và tốc độ quay vòng tồn kho.",
+    },
+    ctaLabel: notifyCta,
     featured: false,
     addedAt: { seconds: 1703721600, nanoseconds: 0 },
   },
@@ -1465,9 +1531,12 @@ export const seedTools = [
     name: "Pallet / Container Calculator",
     slug: "pallet-container-calculator",
     category: "Warehouse",
-    status: "Sắp ra mắt",
-    description: "Công cụ hỗ trợ ước lượng số pallet, container fill rate và phương án xếp hàng phù hợp với quy cách sản phẩm.",
-    ctaLabel: "Nhận thông báo khi ra mắt",
+    status: "coming-soon",
+    description: {
+      en: "Estimate pallet counts, container fill rate and a loading plan that fits your product specifications.",
+      vi: "Công cụ hỗ trợ ước lượng số pallet, container fill rate và phương án xếp hàng phù hợp với quy cách sản phẩm.",
+    },
+    ctaLabel: notifyCta,
     featured: false,
     addedAt: { seconds: 1703635200, nanoseconds: 0 },
   },
@@ -1476,9 +1545,12 @@ export const seedTools = [
     name: "Forecast Error Calculator",
     slug: "forecast-error-calculator",
     category: "Forecasting",
-    status: "Đang phát triển",
-    description: "Công cụ skeleton để tính MAD, MAPE, tracking signal và forecast bias.",
-    ctaLabel: "Nhận thông báo khi ra mắt",
+    status: "in-progress",
+    description: {
+      en: "A skeleton tool to calculate MAD, MAPE, tracking signal and forecast bias.",
+      vi: "Công cụ skeleton để tính MAD, MAPE, tracking signal và forecast bias.",
+    },
+    ctaLabel: notifyCta,
     featured: false,
     addedAt: { seconds: 1703548800, nanoseconds: 0 },
   },
@@ -1487,9 +1559,12 @@ export const seedTools = [
     name: "Demand Pattern Analyzer",
     slug: "demand-pattern-analyzer",
     category: "Demand Planning",
-    status: "Đang phát triển",
-    description: "Công cụ skeleton giúp phân biệt trend, seasonality, cycle và random variation.",
-    ctaLabel: "Nhận thông báo khi ra mắt",
+    status: "in-progress",
+    description: {
+      en: "A skeleton tool to tell trend, seasonality, cycle and random variation apart.",
+      vi: "Công cụ skeleton giúp phân biệt trend, seasonality, cycle và random variation.",
+    },
+    ctaLabel: notifyCta,
     featured: false,
     addedAt: { seconds: 1703462400, nanoseconds: 0 },
   },
@@ -1498,9 +1573,12 @@ export const seedTools = [
     name: "S&OP Readiness Check",
     slug: "sop-readiness-check",
     category: "S&OP",
-    status: "Sắp ra mắt",
-    description: "Checklist nhanh để đánh giá mức độ sẵn sàng triển khai S&OP.",
-    ctaLabel: "Nhận thông báo khi ra mắt",
+    status: "coming-soon",
+    description: {
+      en: "A quick checklist to assess how ready you are to roll out S&OP.",
+      vi: "Checklist nhanh để đánh giá mức độ sẵn sàng triển khai S&OP.",
+    },
+    ctaLabel: notifyCta,
     featured: false,
     addedAt: { seconds: 1703376000, nanoseconds: 0 },
   },
@@ -1509,9 +1587,12 @@ export const seedTools = [
     name: "Supply Chain Maturity Assessment",
     slug: "supply-chain-maturity-assessment",
     category: "Governance",
-    status: "Sắp ra mắt",
-    description: "Assessment skeleton dựa trên các cấp độ trưởng thành Supply Chain, dùng để xác định current state và gap.",
-    ctaLabel: "Nhận thông báo khi ra mắt",
+    status: "coming-soon",
+    description: {
+      en: "An assessment skeleton based on supply chain maturity levels, used to define the current state and gaps.",
+      vi: "Assessment skeleton dựa trên các cấp độ trưởng thành Supply Chain, dùng để xác định current state và gap.",
+    },
+    ctaLabel: notifyCta,
     featured: false,
     addedAt: { seconds: 1703289600, nanoseconds: 0 },
   },

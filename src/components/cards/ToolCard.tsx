@@ -1,24 +1,15 @@
 import { Link } from "react-router-dom"
-
-interface Tool {
-  id: string
-  name: string
-  category: string
-  status: string
-  description: string
-  ctaLabel: string
-}
+import type { Tool } from "@/data/seedData"
+import { StatusBadge } from "@/components/StatusBadge"
+import { useLang } from "@/lib/i18n"
 
 interface ToolCardProps {
   tool: Tool
 }
 
-const statusClasses: Record<string, string> = {
-  "Đang phát triển": "border-[var(--color-warning)]/20 bg-[var(--color-warning)]/10 text-[var(--color-warning)]",
-  "Sắp ra mắt": "border-[var(--color-secondary)]/20 bg-[var(--color-secondary)]/10 text-[var(--color-secondary)]",
-}
-
 export default function ToolCard({ tool }: ToolCardProps) {
+  const { lang } = useLang()
+
   return (
     <div className="surface-panel card-hover flex h-full flex-col overflow-hidden rounded-[var(--radius-xl)] border-[var(--color-border)]">
       <div className="bg-[var(--color-secondary)] p-5 text-white">
@@ -29,12 +20,10 @@ export default function ToolCard({ tool }: ToolCardProps) {
 
       <div className="flex flex-1 flex-col p-5">
         <div className="mb-4">
-          <span className={`rounded-full border px-2.5 py-1 text-xs font-medium ${statusClasses[tool.status]}`}>
-            {tool.status}
-          </span>
+          <StatusBadge status={tool.status} className="px-2.5" />
         </div>
         <h3 className="font-[var(--font-display)] text-xl leading-tight text-[var(--color-text)]">{tool.name}</h3>
-        <p className="mt-3 flex-1 text-sm leading-6 text-[var(--color-text-muted)]">{tool.description}</p>
+        <p className="mt-3 flex-1 text-sm leading-6 text-[var(--color-text-muted)]">{tool.description[lang]}</p>
         <div className="mt-5 border-t border-[var(--color-border)] pt-5">
           <div className="text-xs uppercase tracking-wide text-[var(--color-text-muted)]">Category</div>
           <div className="mt-1 text-sm font-medium text-[var(--color-text)]">{tool.category}</div>
@@ -43,7 +32,7 @@ export default function ToolCard({ tool }: ToolCardProps) {
           to="/solutions/checklist"
           className="focus-ring mt-5 inline-flex items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-secondary)] px-4 py-3 text-sm font-medium text-white transition-colors hover:brightness-105"
         >
-          {tool.ctaLabel}
+          {tool.ctaLabel[lang]}
         </Link>
       </div>
     </div>

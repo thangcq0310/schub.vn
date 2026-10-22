@@ -1,12 +1,14 @@
 import { Link } from "react-router-dom"
 import { Clock, User } from "lucide-react"
-import type { Article } from "../../lib/articles"
+import type { LocalizedArticle } from "../../lib/articles"
+import { useLang } from "../../lib/i18n"
 
 interface ArticleCardProps {
-  article: Article
+  article: LocalizedArticle
 }
 
 export default function ArticleCard({ article }: ArticleCardProps) {
+  const { lang } = useLang()
   const primaryTag = article.tags[0] ?? "Supply Chain"
 
   return (
@@ -16,7 +18,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
     >
       <div className="bg-[var(--color-primary)] p-5 text-white">
         <p className="font-[var(--font-mono)] text-xs uppercase tracking-[0.18em] text-white/70">
-          THỰC CHIẾN SCM
+          {lang === "en" ? "PRACTICAL SCM" : "THỰC CHIẾN SCM"}
         </p>
         <div className="mt-5 h-px w-12 bg-[var(--color-secondary)]" />
         <p className="mt-4 text-xs uppercase tracking-wide text-white/70">
@@ -34,6 +36,11 @@ export default function ArticleCard({ article }: ArticleCardProps) {
               {tag}
             </span>
           ))}
+          {article.contentLang !== lang && (
+            <span className="rounded-full border border-[var(--color-secondary)]/30 bg-[var(--color-secondary)]/10 px-2.5 py-1 text-xs font-medium text-[var(--color-secondary)]">
+              Vietnamese
+            </span>
+          )}
         </div>
         <h3 className="font-[var(--font-display)] text-xl leading-tight text-[var(--color-text)]">
           {article.title}
@@ -44,7 +51,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
         <div className="mt-auto flex items-center gap-4 pt-5 text-xs text-[var(--color-text-muted)]">
           <span className="flex items-center gap-1">
             <Clock className="h-3 w-3" />
-            {article.readTimeMinutes} phút
+            {article.readTimeMinutes} {lang === "en" ? "min" : "phút"}
           </span>
           <span className="flex items-center gap-1">
             <User className="h-3 w-3" />

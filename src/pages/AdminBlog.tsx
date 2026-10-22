@@ -80,7 +80,19 @@ function convertHtmlEmbeds(body: string): string {
   )
 }
 
-const emptyForm = { title: "", slug: "", excerpt: "", body: "", tags: "", authorName: "SCHub.vn", readTimeMinutes: 5, featured: false }
+const emptyForm = {
+  title: "",
+  slug: "",
+  excerpt: "",
+  body: "",
+  titleEn: "",
+  excerptEn: "",
+  bodyEn: "",
+  tags: "",
+  authorName: "SCHub.vn",
+  readTimeMinutes: 5,
+  featured: false,
+}
 
 const leadSourceLabels: Record<Lead["source"], string> = {
   checklist: "Checklist",
@@ -97,6 +109,8 @@ export function AdminBlog() {
   const [youtubeUrl, setYoutubeUrl] = useState("")
   const [previewYoutubeId, setPreviewYoutubeId] = useState("")
   const [showPreview, setShowPreview] = useState(false)
+  // Which language version the body editor and preview show
+  const [editLang, setEditLang] = useState<"vi" | "en">("vi")
   const [tab, setTab] = useState<"editor" | "list" | "leads">("editor")
   const [copied, setCopied] = useState(false)
   const [leads, setLeads] = useState<Lead[] | null>(null)
@@ -132,8 +146,11 @@ export function AdminBlog() {
     setEditingId(null)
     setForm(emptyForm)
     setShowPreview(false)
+    setEditLang("vi")
     setSaveError("")
   }
+
+  const bodyKey = editLang === "en" ? "bodyEn" : "body"
 
   const handleTitleChange = (title: string) => {
     setForm(prev => ({
@@ -151,7 +168,7 @@ export function AdminBlog() {
   const insertYoutubeEmbed = () => {
     if (!previewYoutubeId) return
     const embed = youtubeEmbedMarkdown(previewYoutubeId)
-    setForm(prev => ({ ...prev, body: prev.body + (prev.body ? "\n\n" : "") + embed }))
+    setForm(prev => ({ ...prev, [bodyKey]: prev[bodyKey] + (prev[bodyKey] ? "\n\n" : "") + embed }))
     setYoutubeUrl("")
     setPreviewYoutubeId("")
   }
@@ -173,6 +190,13 @@ export function AdminBlog() {
       return
     }
 
+    const titleEn = form.titleEn.trim()
+    const bodyEn = form.bodyEn.trim()
+    if (!!titleEn !== !!bodyEn) {
+      setSaveError("Bản tiếng Anh cần có cả tiêu đề và nội dung (hoặc để trống cả hai).")
+      return
+    }
+
     const tags = form.tags.split(",").map(t => t.trim()).filter(Boolean)
     const editing = editingId ? articles.find(a => a.id === editingId) : undefined
     const data: ArticleInput = {
@@ -185,6 +209,7 @@ export function AdminBlog() {
       readTimeMinutes: Math.max(1, Math.round(form.readTimeMinutes) || 1),
       featured: form.featured,
       publishedAt: editing?.publishedAt ?? Date.now(),
+      en: titleEn ? { title: titleEn, excerpt: form.excerptEn.trim(), body: form.bodyEn } : undefined,
     }
 
     setSaving(true)
@@ -208,6 +233,9 @@ export function AdminBlog() {
       slug: a.slug,
       excerpt: a.excerpt,
       body: a.body,
+      titleEn: a.en?.title ?? "",
+      excerptEn: a.en?.excerpt ?? "",
+      bodyEn: a.en?.body ?? "",
       tags: a.tags.join(", "),
       authorName: a.authorName,
       readTimeMinutes: a.readTimeMinutes,
@@ -216,6 +244,7 @@ export function AdminBlog() {
     setEditingId(a.id)
     setTab("editor")
     setShowPreview(false)
+    setEditLang("vi")
     setSaveError("")
   }
 
@@ -355,6 +384,19 @@ export function AdminBlog() {
                     </div>
                   </div>
 
+                  <div className="space-y-3 rounded-[var(--radius-sm)] p-3" style={{ border: "1px dashed var(--color-border)" }}>
+                    <p className="text-xs font-medium" style={{ color: "var(--color-text)" }}>Bản tiếng Anh (không bắt buộc)</p>
+                    <div>
+                      <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Title (English)</label>
+                      <input value={form.titleEn} onChange={e => setForm(prev => ({ ...prev, titleEn: e.target.value }))} className="w-full px-3 py-2 rounded-[var(--radius-sm)] text-sm" style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", color: "var(--color-text)" }} />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>Excerpt (English)</label>
+                      <textarea value={form.excerptEn} onChange={e => setForm(prev => ({ ...prev, excerptEn: e.target.value }))} rows={2} className="w-full px-3 py-2 rounded-[var(--radius-sm)] text-sm resize-none" style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", color: "var(--color-text)" }} />
+                    </div>
+                    <p className="text-[10px]" style={{ color: "var(--color-text-muted)" }}>Nội dung tiếng Anh soạn ở tab "English" bên phải. Để trống thì khách xem tiếng Anh sẽ thấy bản tiếng Việt.</p>
+                  </div>
+
                   <div className="flex items-center gap-2">
                     <input type="checkbox" id="featured" checked={form.featured} onChange={e => setForm(prev => ({ ...prev, featured: e.target.checked }))} />
                     <label htmlFor="featured" className="text-sm" style={{ color: "var(--color-text)" }}>Bài nổi bật (featured)</label>
@@ -393,7 +435,14 @@ export function AdminBlog() {
 
             <div className="lg:col-span-2 space-y-4">
               <div className="flex items-center justify-between p-2 rounded-[var(--radius-lg)]" style={{ background: "var(--color-surface-raised)", border: "1px solid var(--color-border)" }}>
-                <span className="text-xs px-2" style={{ color: "var(--color-text-muted)" }}>Nội dung (Markdown)</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs px-2" style={{ color: "var(--color-text-muted)" }}>Nội dung (Markdown)</span>
+                  {(["vi", "en"] as const).map(l => (
+                    <button key={l} onClick={() => setEditLang(l)} aria-pressed={editLang === l} className="px-2.5 py-1 rounded-[var(--radius-sm)] text-xs font-medium" style={{ background: editLang === l ? "var(--color-primary)" : "var(--color-surface)", color: editLang === l ? "#fff" : "var(--color-text)", border: "1px solid var(--color-border)" }}>
+                      {l === "vi" ? "Tiếng Việt" : "English"}
+                    </button>
+                  ))}
+                </div>
                 <button onClick={() => setShowPreview(!showPreview)} className="flex items-center gap-1 px-3 py-1.5 rounded-[var(--radius-sm)] text-xs font-medium" style={{ background: showPreview ? "var(--color-primary)" : "var(--color-surface)", color: showPreview ? "#fff" : "var(--color-text)", border: "1px solid var(--color-border)" }}>
                   <Eye className="h-3 w-3" /> {showPreview ? "Soạn thảo" : "Xem trước"}
                 </button>
@@ -401,19 +450,19 @@ export function AdminBlog() {
 
               {showPreview ? (
                 <div className="p-6 rounded-[var(--radius-lg)]" style={{ background: "var(--color-surface-raised)", border: "1px solid var(--color-border)" }}>
-                  <h1 className="font-[var(--font-display)] text-2xl font-bold mb-2" style={{ color: "var(--color-text)" }}>{form.title || "Tiêu đề bài viết"}</h1>
-                  <p className="text-sm mb-4" style={{ color: "var(--color-text-muted)" }}>{form.authorName} · {form.readTimeMinutes} phút đọc</p>
-                  {form.excerpt && (
+                  <h1 className="font-[var(--font-display)] text-2xl font-bold mb-2" style={{ color: "var(--color-text)" }}>{(editLang === "en" ? form.titleEn : form.title) || "Tiêu đề bài viết"}</h1>
+                  <p className="text-sm mb-4" style={{ color: "var(--color-text-muted)" }}>{form.authorName} · {form.readTimeMinutes} {editLang === "en" ? "min read" : "phút đọc"}</p>
+                  {(editLang === "en" ? form.excerptEn : form.excerpt) && (
                     <p className="text-base mb-6 p-4 rounded-[var(--radius-md)]" style={{ background: "var(--color-surface)", borderLeft: "3px solid var(--color-primary)", color: "var(--color-text-muted)" }}>
-                      {form.excerpt}
+                      {editLang === "en" ? form.excerptEn : form.excerpt}
                     </p>
                   )}
                   <div className="markdown-body" style={{ color: "var(--color-text)" }}>
-                    <ArticleMarkdown>{form.body || "*Chưa có nội dung...*"}</ArticleMarkdown>
+                    <ArticleMarkdown>{form[bodyKey] || "*Chưa có nội dung...*"}</ArticleMarkdown>
                   </div>
                 </div>
               ) : (
-                <textarea value={form.body} onChange={e => setForm(prev => ({ ...prev, body: e.target.value }))} rows={24} className="w-full px-4 py-4 rounded-[var(--radius-lg)] text-sm font-mono resize-none" style={{ background: "var(--color-surface-raised)", border: "1px solid var(--color-border)", color: "var(--color-text)", lineHeight: 1.7 }} placeholder={`Viết nội dung bằng Markdown...
+                <textarea value={form[bodyKey]} onChange={e => setForm(prev => ({ ...prev, [bodyKey]: e.target.value }))} aria-label={editLang === "en" ? "English content" : "Nội dung tiếng Việt"} rows={24} className="w-full px-4 py-4 rounded-[var(--radius-lg)] text-sm font-mono resize-none" style={{ background: "var(--color-surface-raised)", border: "1px solid var(--color-border)", color: "var(--color-text)", lineHeight: 1.7 }} placeholder={`Viết nội dung bằng Markdown...
 
 Tiêu đề ##
 In đậm **text**
@@ -456,6 +505,7 @@ Dùng công cụ YouTube bên trái để chèn video`} />
                       <div className="flex items-center gap-2 mt-1.5">
                         <span className="text-[10px]" style={{ color: "var(--color-text-muted)" }}>{new Date(a.publishedAt).toLocaleDateString("vi-VN")} · {a.readTimeMinutes} phút</span>
                         {a.featured && <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: "var(--color-primary)", color: "#fff" }}>Featured</span>}
+                        {a.en && <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: "var(--color-secondary)", color: "#fff" }}>EN</span>}
                         {a.tags.slice(0, 2).map(t => (
                           <span key={t} className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: "var(--color-surface)", color: "var(--color-text-muted)", border: "1px solid var(--color-border)" }}>{t}</span>
                         ))}

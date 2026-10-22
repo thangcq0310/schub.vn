@@ -136,6 +136,19 @@ Cấu hình Firebase lần đầu: xem [docs/setup-firebase.md](docs/setup-fireb
 
 ---
 
+## Ngôn ngữ (English / Tiếng Việt)
+
+Website mặc định hiển thị **tiếng Anh**. Nút **EN | VI** trên thanh menu chuyển sang tiếng Việt, lựa chọn được nhớ trên trình duyệt. Link có `?lang=vi` (ví dụ `https://schub.vn/blog?lang=vi`) mở thẳng bản tiếng Việt — dùng khi chia sẻ cho người đọc Việt.
+
+Sửa nội dung theo ngôn ngữ:
+
+* **Chữ trên từng trang:** mỗi file trong `src/pages/` có hai object `en` và `vi` ở đầu file. TypeScript báo lỗi nếu hai bản thiếu trường của nhau.
+* **Dữ liệu (Learning Hub, Solutions, sản phẩm, công cụ):** các trường dạng `{ en: "...", vi: "..." }` trong `src/data/`.
+* **Bài blog có sẵn:** bản gốc tiếng Việt ở `src/data/seedData.ts`, bản tiếng Anh ở `src/data/seedArticlesEn.ts` (theo `id` bài).
+* **Bài đăng từ `/admin/blog`:** nhập thêm Title/Excerpt (English) và tab nội dung "English". Bài chưa có bản tiếng Anh vẫn hiện bản tiếng Việt, kèm nhãn "Vietnamese".
+
+---
+
 ## Cài đặt môi trường phát triển
 
 ```bash

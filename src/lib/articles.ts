@@ -6,9 +6,18 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
+  deleteField,
   Timestamp,
 } from "firebase/firestore/lite"
 import { seedArticles } from "@/data/seedData"
+import { seedArticlesEn } from "@/data/seedArticlesEn"
+import type { Lang } from "./i18n"
+
+export interface ArticleTranslation {
+  title: string
+  excerpt: string
+  body: string
+}
 
 export interface Article {
   id: string
@@ -22,6 +31,23 @@ export interface Article {
   readTimeMinutes: number
   featured: boolean
   publishedAt: number
+  /** English version; the base fields above are the Vietnamese original */
+  en?: ArticleTranslation
+}
+
+/** An article with its text in the visitor's language, when a translation exists */
+export type LocalizedArticle = Article & { contentLang: Lang }
+
+export function localizeArticle(article: Article, lang: Lang): LocalizedArticle {
+  if (lang === "en" && article.en) return { ...article, ...article.en, contentLang: "en" }
+  return { ...article, contentLang: "vi" }
+}
+
+function toTranslation(raw: unknown): ArticleTranslation | undefined {
+  if (!raw || typeof raw !== "object") return undefined
+  const { title, excerpt, body } = raw as Record<string, unknown>
+  if (typeof title !== "string" || typeof body !== "string" || !title || !body) return undefined
+  return { title, excerpt: typeof excerpt === "string" ? excerpt : "", body }
 }
 
 /** Fields the admin page writes to Firestore */
@@ -46,6 +72,7 @@ function toArticle(id: string, data: Record<string, unknown>): Article {
     readTimeMinutes: (data.readTimeMinutes as number) ?? 5,
     featured: (data.featured as boolean) ?? false,
     publishedAt,
+    en: toTranslation(data.en),
   }
 }
 
@@ -56,7 +83,7 @@ const byNewest = (a: Article, b: Article) => b.publishedAt - a.publishedAt
 // Seed data stores publishedAt as { seconds }, this module works in milliseconds
 /** Articles shipped in the code, available before Firestore answers */
 export const bundledArticles: Article[] = seedArticles
-  .map((a) => ({ ...a, publishedAt: a.publishedAt.seconds * 1000 }))
+  .map((a) => ({ ...a, publishedAt: a.publishedAt.seconds * 1000, en: seedArticlesEn[a.id] }))
   .sort(byNewest)
 
 export function generateSlug(title: string): string {
@@ -100,18 +127,19 @@ export function getAllArticles(): Promise<Article[]> {
   return allArticles
 }
 
-function toFirestore(data: ArticleInput) {
+function toFirestore(data: Omit<ArticleInput, "en">) {
   return { ...data, publishedAt: Timestamp.fromMillis(data.publishedAt) }
 }
 
-export async function createArticle(data: ArticleInput): Promise<string> {
-  const docRef = await addDoc(collection(db, COLLECTION), toFirestore(data))
+export async function createArticle({ en, ...data }: ArticleInput): Promise<string> {
+  const docRef = await addDoc(collection(db, COLLECTION), { ...toFirestore(data), ...(en && { en }) })
   allArticles = null
   return docRef.id
 }
 
-export async function updateArticle(id: string, data: ArticleInput): Promise<void> {
-  await updateDoc(doc(db, COLLECTION, id), toFirestore(data))
+export async function updateArticle(id: string, { en, ...data }: ArticleInput): Promise<void> {
+  // Clearing the English fields in the editor removes the translation
+  await updateDoc(doc(db, COLLECTION, id), { ...toFirestore(data), en: en ?? deleteField() })
   allArticles = null
 }
 

@@ -3,10 +3,36 @@ import { onAuthStateChanged, type User } from "firebase/auth"
 import { LogIn, LogOut, Package } from "lucide-react"
 import { isDemoMode } from "@/lib/firebase"
 import { auth, isAdmin, signInWithGoogle, signOutAdmin } from "@/lib/auth"
+import { useLang } from "@/lib/i18n"
+
+const en = {
+  subtitle: "Sign in to manage the blog",
+  notConfigured: "Firebase is not configured yet. See docs/setup-firebase.md.",
+  checking: "Checking sign-in...",
+  notAdmin: (email: string) => <>The account <strong>{email}</strong> does not have admin access.</>,
+  signOut: "Sign out",
+  signIn: "Sign in with Google",
+  opening: "Opening the sign-in window...",
+  failed: "Could not sign in",
+}
+
+const vi: typeof en = {
+  subtitle: "Đăng nhập để quản lý blog",
+  notConfigured: "Chưa cấu hình Firebase. Xem hướng dẫn trong docs/setup-firebase.md.",
+  checking: "Đang kiểm tra đăng nhập...",
+  notAdmin: (email: string) => <>Tài khoản <strong>{email}</strong> không có quyền quản trị.</>,
+  signOut: "Đăng xuất",
+  signIn: "Đăng nhập bằng Google",
+  opening: "Đang mở cửa sổ đăng nhập...",
+  failed: "Không đăng nhập được",
+}
+
+const copy = { en, vi }
 
 const buttonClassName = "flex w-full items-center justify-center gap-2 rounded-[var(--radius-md)] bg-[var(--color-primary)] px-4 py-2.5 text-sm font-medium text-white hover:brightness-110 disabled:opacity-60"
 
 export function AdminGuard({ children }: { children: ReactNode }) {
+  const c = copy[useLang().lang]
   // undefined while Firebase restores the previous session
   const [user, setUser] = useState<User | null | undefined>(undefined)
   const [signingIn, setSigningIn] = useState(false)
@@ -24,7 +50,7 @@ export function AdminGuard({ children }: { children: ReactNode }) {
     } catch (err) {
       const code = (err as { code?: string }).code ?? ""
       if (code !== "auth/popup-closed-by-user" && code !== "auth/cancelled-popup-request") {
-        setError(`Không đăng nhập được (${code || String(err)})`)
+        setError(`${c.failed} (${code || String(err)})`)
       }
     } finally {
       setSigningIn(false)
@@ -33,17 +59,15 @@ export function AdminGuard({ children }: { children: ReactNode }) {
 
   let content: ReactNode
   if (isDemoMode) {
-    content = <p className="mt-6 text-sm text-[var(--color-text-muted)]">Chưa cấu hình Firebase. Xem hướng dẫn trong docs/setup-firebase.md.</p>
+    content = <p className="mt-6 text-sm text-[var(--color-text-muted)]">{c.notConfigured}</p>
   } else if (user === undefined) {
-    content = <p className="mt-6 text-sm text-[var(--color-text-muted)]">Đang kiểm tra đăng nhập...</p>
+    content = <p className="mt-6 text-sm text-[var(--color-text-muted)]">{c.checking}</p>
   } else if (user) {
     content = (
       <div className="mt-6 space-y-4">
-        <p className="text-sm text-[var(--color-text)]">
-          Tài khoản <strong>{user.email}</strong> không có quyền quản trị.
-        </p>
+        <p className="text-sm text-[var(--color-text)]">{c.notAdmin(user.email ?? "")}</p>
         <button type="button" onClick={() => signOutAdmin()} className={buttonClassName}>
-          <LogOut className="h-4 w-4" /> Đăng xuất
+          <LogOut className="h-4 w-4" /> {c.signOut}
         </button>
       </div>
     )
@@ -51,7 +75,7 @@ export function AdminGuard({ children }: { children: ReactNode }) {
     content = (
       <div className="mt-6 space-y-3">
         <button type="button" onClick={handleSignIn} disabled={signingIn} className={buttonClassName}>
-          <LogIn className="h-4 w-4" /> {signingIn ? "Đang mở cửa sổ đăng nhập..." : "Đăng nhập bằng Google"}
+          <LogIn className="h-4 w-4" /> {signingIn ? c.opening : c.signIn}
         </button>
         {error && <p className="text-xs text-red-500">{error}</p>}
       </div>
@@ -65,7 +89,7 @@ export function AdminGuard({ children }: { children: ReactNode }) {
           <Package className="h-7 w-7" />
         </div>
         <h1 className="font-[var(--font-display)] text-xl text-[var(--color-text)]">SCHub.vn Admin</h1>
-        <p className="mt-2 text-sm text-[var(--color-text-muted)]">Đăng nhập để quản lý blog</p>
+        <p className="mt-2 text-sm text-[var(--color-text-muted)]">{c.subtitle}</p>
         {content}
       </div>
     </div>

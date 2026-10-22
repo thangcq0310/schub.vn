@@ -1,11 +1,8 @@
 import { Link } from "react-router-dom"
 import Container from "@/components/layout/Container"
+import { StatusBadge } from "@/components/StatusBadge"
 import { learningPaths } from "@/data/learningPaths"
-
-const statusClasses: Record<string, string> = {
-  "Đang phát triển": "border-[var(--color-warning)]/20 bg-[var(--color-warning)]/10 text-[var(--color-warning)]",
-  "Sắp ra mắt": "border-[var(--color-secondary)]/20 bg-[var(--color-secondary)]/10 text-[var(--color-secondary)]",
-}
+import { useLang } from "@/lib/i18n"
 
 // Recommended learning order
 const learningOrder = [
@@ -17,23 +14,40 @@ const learningOrder = [
   { label: "Operations Planning", href: "/learning/operations-planning-control" },
 ]
 
+const en = {
+  title: "Supply Chain Learning Hub",
+  intro: "Practical learning paths that take you from Supply Chain Foundation to Demand Analysis, Demand Management, Forecasting, S&OP and Operations Planning.",
+  orderTitle: "In what order should I learn?",
+  orderBody: "If you are just starting, begin with the foundation, then move on to demand, forecasting, S&OP and planning control.",
+  viewPath: "View learning path",
+}
+
+const vi: typeof en = {
+  title: "Learning Hub Supply Chain",
+  intro: "Các learning path thực chiến giúp bạn đi từ Supply Chain Foundation đến Demand Analysis, Demand Management, Forecasting, S&OP và Operations Planning.",
+  orderTitle: "Nên học theo thứ tự nào?",
+  orderBody: "Nếu mới bắt đầu, hãy đi từ foundation trước, sau đó chuyển sang demand, forecast, S&OP và planning control.",
+  viewPath: "Xem lộ trình",
+}
+
+const copy = { en, vi }
+
 export function Learning() {
+  const { lang } = useLang()
+  const c = copy[lang]
+
   return (
     <Container>
       <div className="py-16">
         <div className="mb-10 max-w-4xl">
-          <h1 className="font-[var(--font-display)] text-4xl font-bold text-[var(--color-text)]">Learning Hub Supply Chain</h1>
-          <p className="mt-4 text-lg text-[var(--color-text-muted)]">
-            Các learning path thực chiến giúp bạn đi từ Supply Chain Foundation đến Demand Analysis, Demand Management, Forecasting, S&OP và Operations Planning.
-          </p>
+          <h1 className="font-[var(--font-display)] text-4xl font-bold text-[var(--color-text)]">{c.title}</h1>
+          <p className="mt-4 text-lg text-[var(--color-text-muted)]">{c.intro}</p>
         </div>
 
         {/* Learning order recommendation */}
         <div className="surface-panel mb-10 rounded-[var(--radius-xl)] p-6">
-          <h2 className="font-[var(--font-display)] text-xl text-[var(--color-text)]">Nên học theo thứ tự nào?</h2>
-          <p className="mt-2 text-sm text-[var(--color-text-muted)]">
-            Nếu mới bắt đầu, hãy đi từ foundation trước, sau đó chuyển sang demand, forecast, S&OP và planning control.
-          </p>
+          <h2 className="font-[var(--font-display)] text-xl text-[var(--color-text)]">{c.orderTitle}</h2>
+          <p className="mt-2 text-sm text-[var(--color-text-muted)]">{c.orderBody}</p>
           <div className="mt-4 flex flex-wrap gap-3">
             {learningOrder.map((item, i) => (
               <Link
@@ -54,15 +68,15 @@ export function Learning() {
           {learningPaths.map((path) => (
             <Link key={path.slug} to={`/learning/${path.slug}`} className="surface-panel card-hover block rounded-[var(--radius-xl)] p-6">
               <div className="flex flex-wrap gap-2">
-                <span className={`rounded-full border px-3 py-1 text-xs font-medium ${statusClasses[path.status]}`}>
-                  {path.status}
-                </span>
+                <StatusBadge status={path.status} />
               </div>
               <p className="mt-4 font-[var(--font-mono)] text-xs uppercase tracking-[0.18em] text-[var(--color-text-muted)]">Learning Path</p>
-              <h2 className="mt-3 font-[var(--font-display)] text-2xl text-[var(--color-text)]">{path.vietnameseTitle}</h2>
-              <p className="mt-2 text-sm text-[var(--color-text-muted)]">{path.title}</p>
-              <p className="mt-4 text-sm leading-6 text-[var(--color-text-muted)]">{path.description}</p>
-              <div className="mt-5 text-sm font-medium text-[var(--color-primary)]">Xem lộ trình</div>
+              <h2 className="mt-3 font-[var(--font-display)] text-2xl text-[var(--color-text)]">{path.heading[lang]}</h2>
+              {path.heading[lang] !== path.title && (
+                <p className="mt-2 text-sm text-[var(--color-text-muted)]">{path.title}</p>
+              )}
+              <p className="mt-4 text-sm leading-6 text-[var(--color-text-muted)]">{path.description[lang]}</p>
+              <div className="mt-5 text-sm font-medium text-[var(--color-primary)]">{c.viewPath}</div>
             </Link>
           ))}
         </div>
