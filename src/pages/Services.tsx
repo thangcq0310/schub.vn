@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { FileText, Package, Wrench, Send, CheckCircle2 } from "lucide-react"
 import Container from "../components/layout/Container"
+import { submitLead } from "../lib/leads"
 
 const services = [
   {
@@ -52,11 +53,30 @@ const labelClassName = "mb-1 block text-sm font-medium text-[var(--color-text)]"
 export function Services() {
   const [form, setForm] = useState({ name: "", email: "", phone: "", company: "", serviceType: "", message: "" })
   const [submitted, setSubmitted] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [error, setError] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Form submitted:", form)
-    setSubmitted(true)
+    setSending(true)
+    setError(false)
+    try {
+      await submitLead({
+        source: "services",
+        name: form.name.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim(),
+        company: form.company.trim(),
+        serviceType: form.serviceType,
+        message: form.message.trim(),
+      })
+      setSubmitted(true)
+    } catch (err) {
+      console.error("Could not save consulting request", err)
+      setError(true)
+    } finally {
+      setSending(false)
+    }
   }
 
   return (
@@ -176,11 +196,17 @@ export function Services() {
 
               <button
                 type="submit"
-                className="focus-ring flex w-full items-center justify-center gap-2 rounded-[var(--radius-md)] bg-[var(--color-primary)] px-6 py-3 font-medium text-white transition-colors hover:brightness-110"
+                disabled={sending}
+                className="focus-ring flex w-full items-center justify-center gap-2 rounded-[var(--radius-md)] bg-[var(--color-primary)] px-6 py-3 font-medium text-white transition-colors hover:brightness-110 disabled:opacity-60"
               >
                 <Send className="h-5 w-5" />
-                Gửi yêu cầu
+                {sending ? "Đang gửi..." : "Gửi yêu cầu"}
               </button>
+              {error && (
+                <p className="text-sm text-red-500">
+                  Chưa gửi được yêu cầu. Vui lòng thử lại hoặc email <a href="mailto:contact@schub.vn" className="underline">contact@schub.vn</a>.
+                </p>
+              )}
             </form>
           )}
         </div>

@@ -3,7 +3,7 @@ export const seedArticles = [
   {
     id: "17",
     title: "Nỗi đau dự báo nhu cầu trong doanh nghiệp nông sản — Và cách xử lý tận gốc",
-    slug: "noi đau-du-bao-nhu-cau-nong-san-va-cach-xu-ly-tan-goc",
+    slug: "noi-dau-du-bao-nhu-cau-nong-san-va-cach-xu-ly-tan-goc",
     excerpt: "Ngành nông sản tươi sống có lẽ là ngành khó dự báo nhất trong chuỗi cung ứng. FAO ước tính 28–55% rau quả bị thất thoát sau thu hoạch — phần lớn đến từ dự báo sai và đứt gãy chuỗi lạnh.",
     body: `# Nỗi đau dự báo nhu cầu trong doanh nghiệp nông sản — Và cách xử lý tận gốc
 
@@ -176,7 +176,7 @@ Ngành nông sản tươi sống có lẽ là một trong những ngành **khó 
   {
     id: "18",
     title: "Chiến lược mua hàng khi nông sản nhảy giá hàng ngày",
-    slug: "chiens-luoc-mua-hang-khi-nong-san-nhay-gia-hang-ngay",
+    slug: "chien-luoc-mua-hang-khi-nong-san-nhay-gia-hang-ngay",
     excerpt: "Giá nông sản thay đổi từng ngày — thậm chí từng phiên chợ. Bài viết phân tích mối quan hệ hai chiều giữa giá và dự báo, cùng 4 chiến lược mua hàng hybrid giúp doanh nghiệp kiểm soát chi phí.",
     body: `# Chiến lược mua hàng khi nông sản nhảy giá hàng ngày
 

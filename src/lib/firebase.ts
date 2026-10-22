@@ -1,7 +1,9 @@
 import { initializeApp, type FirebaseOptions } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, connectFirestoreEmulator } from "firebase/firestore/lite";
 
-export const isDemoMode = !import.meta.env.VITE_FIREBASE_API_KEY
+// Local development against `firebase emulators:start` (see docs/setup-firebase.md)
+export const useEmulators = import.meta.env.VITE_USE_EMULATORS === "true"
+export const isDemoMode = !import.meta.env.VITE_FIREBASE_API_KEY && !useEmulators
 
 const firebaseConfig: FirebaseOptions = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "demo-key",
@@ -13,7 +15,9 @@ const firebaseConfig: FirebaseOptions = {
 };
 
 const app = initializeApp(firebaseConfig);
+// Firestore Lite: REST-only reads/writes, much smaller bundle than the full SDK
 const db = getFirestore(app);
+if (useEmulators) connectFirestoreEmulator(db, "127.0.0.1", 8080)
 export { db }
 
 if (isDemoMode) {

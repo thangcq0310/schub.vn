@@ -6,11 +6,8 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
-  query,
-  orderBy,
-  where,
   Timestamp,
-} from "firebase/firestore"
+} from "firebase/firestore/lite"
 import { seedArticles } from "@/data/seedData"
 
 export interface Article {
@@ -26,6 +23,9 @@ export interface Article {
   featured: boolean
   publishedAt: number
 }
+
+/** Fields the admin page writes to Firestore */
+export type ArticleInput = Omit<Article, "id" | "type">
 
 function toArticle(id: string, data: Record<string, unknown>): Article {
   const raw = data.publishedAt
@@ -51,76 +51,71 @@ function toArticle(id: string, data: Record<string, unknown>): Article {
 
 const COLLECTION = "articles"
 
-export async function getAllArticles(): Promise<Article[]> {
-  if (isDemoMode) return seedArticles as Article[]
-  try {
-    const q = query(collection(db, COLLECTION), orderBy("publishedAt", "desc"))
-    const snapshot = await getDocs(q)
-    if (snapshot.empty) return seedArticles as Article[]
-    return snapshot.docs.map((d) => toArticle(d.id, d.data() as Record<string, unknown>))
-  } catch {
-    return seedArticles as Article[]
-  }
+const byNewest = (a: Article, b: Article) => b.publishedAt - a.publishedAt
+
+// Seed data stores publishedAt as { seconds }, this module works in milliseconds
+/** Articles shipped in the code, available before Firestore answers */
+export const bundledArticles: Article[] = seedArticles
+  .map((a) => ({ ...a, publishedAt: a.publishedAt.seconds * 1000 }))
+  .sort(byNewest)
+
+export function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/đ/g, "d")
+    .replace(/[àáạảãâầấậẩẫăằắặẳẵ]/g, "a")
+    .replace(/[èéẹẻẽêềếệểễ]/g, "e")
+    .replace(/[ìíịỉĩ]/g, "i")
+    .replace(/[òóọỏõôồốộổỗơờớợởỡ]/g, "o")
+    .replace(/[ùúụủũưừứựửữ]/g, "u")
+    .replace(/[ỳýỵỷỹ]/g, "y")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
 }
 
-export async function getArticleBySlug(slug: string): Promise<Article | null> {
-  if (isDemoMode) return (seedArticles as Article[]).find((a) => a.slug === slug) ?? null
-  try {
-    const q = query(collection(db, COLLECTION), where("slug", "==", slug))
-    const snapshot = await getDocs(q)
-    if (!snapshot.empty) {
-      return toArticle(snapshot.docs[0].id, snapshot.docs[0].data() as Record<string, unknown>)
-    }
-    return (seedArticles as Article[]).find((a) => a.slug === slug) ?? null
-  } catch {
-    return (seedArticles as Article[]).find((a) => a.slug === slug) ?? null
-  }
+/** Articles published from the admin page. Throws when Firestore is unreachable or denies access. */
+export async function getRemoteArticles(): Promise<Article[]> {
+  const snapshot = await getDocs(collection(db, COLLECTION))
+  return snapshot.docs.map((d) => toArticle(d.id, d.data())).sort(byNewest)
 }
 
-export async function createArticle(data: Article): Promise<string | null> {
-  if (isDemoMode) {
-    console.warn("Cannot create articles in demo mode. Set up Firebase credentials in .env")
-    return null
-  }
-  try {
-    const rest = data
-    const docRef = await addDoc(collection(db, COLLECTION), {
-      ...rest,
-      publishedAt: Timestamp.fromMillis(rest.publishedAt),
+// One Firestore read per visit; admin writes reset it
+let allArticles: Promise<Article[]> | null = null
+
+/** Bundled articles plus the ones published from the admin page, newest first */
+export function getAllArticles(): Promise<Article[]> {
+  if (isDemoMode) return Promise.resolve(bundledArticles)
+  allArticles ??= getRemoteArticles()
+    .then((remote) => {
+      const remoteSlugs = new Set(remote.map((a) => a.slug))
+      return [...remote, ...bundledArticles.filter((a) => !remoteSlugs.has(a.slug))].sort(byNewest)
     })
-    return docRef.id
-  } catch {
-    return null
-  }
+    .catch((err) => {
+      console.error("Could not load articles from Firestore", err)
+      allArticles = null
+      return bundledArticles
+    })
+  return allArticles
 }
 
-export async function updateArticle(id: string, data: Partial<Article>): Promise<boolean> {
-  if (isDemoMode) {
-    console.warn("Cannot update articles in demo mode. Set up Firebase credentials in .env")
-    return false
-  }
-  try {
-    const updates = { ...data }
-    delete (updates as Record<string, unknown>).id
-    if (updates.publishedAt) {
-      updates.publishedAt = Timestamp.fromMillis(updates.publishedAt)
-    }
-    await updateDoc(doc(db, COLLECTION, id), updates as Record<string, unknown>)
-    return true
-  } catch {
-    return false
-  }
+function toFirestore(data: ArticleInput) {
+  return { ...data, publishedAt: Timestamp.fromMillis(data.publishedAt) }
 }
 
-export async function deleteArticle(id: string): Promise<boolean> {
-  if (isDemoMode) {
-    console.warn("Cannot delete articles in demo mode. Set up Firebase credentials in .env")
-    return false
-  }
-  try {
-    await deleteDoc(doc(db, COLLECTION, id))
-    return true
-  } catch {
-    return false
-  }
+export async function createArticle(data: ArticleInput): Promise<string> {
+  const docRef = await addDoc(collection(db, COLLECTION), toFirestore(data))
+  allArticles = null
+  return docRef.id
+}
+
+export async function updateArticle(id: string, data: ArticleInput): Promise<void> {
+  await updateDoc(doc(db, COLLECTION, id), toFirestore(data))
+  allArticles = null
+}
+
+export async function deleteArticle(id: string): Promise<void> {
+  await deleteDoc(doc(db, COLLECTION, id))
+  allArticles = null
 }
