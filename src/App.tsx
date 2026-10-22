@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react"
 import { Routes, Route, Navigate } from "react-router-dom"
 import { HelmetProvider } from "react-helmet-async"
 import { SiteLayout } from "@/components/layout/SiteLayout"
@@ -21,8 +22,10 @@ import { LearningDemandManagement } from "@/pages/learning/LearningDemandManagem
 import { LearningForecasting } from "@/pages/learning/LearningForecasting"
 import { LearningSOP } from "@/pages/learning/LearningSOP"
 import { LearningOperationsPlanningControl } from "@/pages/learning/LearningOperationsPlanningControl"
-import { AdminGuard } from "@/components/AdminAuth"
-import { AdminBlog } from "@/pages/AdminBlog"
+
+// Admin pulls in Firebase Auth, keep it out of the bundle visitors download
+const AdminGuard = lazy(() => import("@/components/AdminAuth").then((m) => ({ default: m.AdminGuard })))
+const AdminBlog = lazy(() => import("@/pages/AdminBlog").then((m) => ({ default: m.AdminBlog })))
 
 function App() {
   return (
@@ -59,7 +62,14 @@ function App() {
           <Route path="scm/*" element={<Navigate to="/" replace />} />
           <Route path="*" element={<NotFound />} />
         </Route>
-        <Route path="/admin/blog" element={<AdminGuard><AdminBlog /></AdminGuard>} />
+        <Route
+          path="/admin/blog"
+          element={
+            <Suspense fallback={null}>
+              <AdminGuard><AdminBlog /></AdminGuard>
+            </Suspense>
+          }
+        />
       </Routes>
     </HelmetProvider>
   )

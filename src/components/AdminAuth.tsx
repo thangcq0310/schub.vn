@@ -1,17 +1,62 @@
-import { useState, type ReactNode } from "react"
-import { Lock, Package } from "lucide-react"
+import { useEffect, useState, type ReactNode } from "react"
+import { onAuthStateChanged, type User } from "firebase/auth"
+import { LogIn, LogOut, Package } from "lucide-react"
+import { isDemoMode } from "@/lib/firebase"
+import { auth, isAdmin, signInWithGoogle, signOutAdmin } from "@/lib/auth"
 
-const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || "admin"
-const AUTH_KEY = "schub_admin_auth"
-
-function isAuthed(): boolean {
-  return sessionStorage.getItem(AUTH_KEY) === "true"
-}
+const buttonClassName = "flex w-full items-center justify-center gap-2 rounded-[var(--radius-md)] bg-[var(--color-primary)] px-4 py-2.5 text-sm font-medium text-white hover:brightness-110 disabled:opacity-60"
 
 export function AdminGuard({ children }: { children: ReactNode }) {
-  const [authed, setAuthed] = useState(isAuthed)
+  // undefined while Firebase restores the previous session
+  const [user, setUser] = useState<User | null | undefined>(undefined)
+  const [signingIn, setSigningIn] = useState(false)
+  const [error, setError] = useState("")
 
-  if (authed) return <>{children}</>
+  useEffect(() => onAuthStateChanged(auth, setUser), [])
+
+  if (isAdmin(user)) return <>{children}</>
+
+  const handleSignIn = async () => {
+    setSigningIn(true)
+    setError("")
+    try {
+      await signInWithGoogle()
+    } catch (err) {
+      const code = (err as { code?: string }).code ?? ""
+      if (code !== "auth/popup-closed-by-user" && code !== "auth/cancelled-popup-request") {
+        setError(`Không đăng nhập được (${code || String(err)})`)
+      }
+    } finally {
+      setSigningIn(false)
+    }
+  }
+
+  let content: ReactNode
+  if (isDemoMode) {
+    content = <p className="mt-6 text-sm text-[var(--color-text-muted)]">Chưa cấu hình Firebase. Xem hướng dẫn trong docs/setup-firebase.md.</p>
+  } else if (user === undefined) {
+    content = <p className="mt-6 text-sm text-[var(--color-text-muted)]">Đang kiểm tra đăng nhập...</p>
+  } else if (user) {
+    content = (
+      <div className="mt-6 space-y-4">
+        <p className="text-sm text-[var(--color-text)]">
+          Tài khoản <strong>{user.email}</strong> không có quyền quản trị.
+        </p>
+        <button type="button" onClick={() => signOutAdmin()} className={buttonClassName}>
+          <LogOut className="h-4 w-4" /> Đăng xuất
+        </button>
+      </div>
+    )
+  } else {
+    content = (
+      <div className="mt-6 space-y-3">
+        <button type="button" onClick={handleSignIn} disabled={signingIn} className={buttonClassName}>
+          <LogIn className="h-4 w-4" /> {signingIn ? "Đang mở cửa sổ đăng nhập..." : "Đăng nhập bằng Google"}
+        </button>
+        {error && <p className="text-xs text-red-500">{error}</p>}
+      </div>
+    )
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[var(--color-surface)]">
@@ -20,47 +65,9 @@ export function AdminGuard({ children }: { children: ReactNode }) {
           <Package className="h-7 w-7" />
         </div>
         <h1 className="font-[var(--font-display)] text-xl text-[var(--color-text)]">SCHub.vn Admin</h1>
-        <p className="mt-2 text-sm text-[var(--color-text-muted)]">Nhập mật khẩu để quản lý blog</p>
-        <LoginForm onSuccess={() => setAuthed(true)} />
+        <p className="mt-2 text-sm text-[var(--color-text-muted)]">Đăng nhập để quản lý blog</p>
+        {content}
       </div>
     </div>
-  )
-}
-
-function LoginForm({ onSuccess }: { onSuccess: () => void }) {
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState(false)
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (password === ADMIN_PASSWORD) {
-      sessionStorage.setItem(AUTH_KEY, "true")
-      onSuccess()
-    } else {
-      setError(true)
-      setPassword("")
-    }
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-      <div>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => { setPassword(e.target.value); setError(false) }}
-          placeholder="Mật khẩu"
-          className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-center text-sm text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none"
-          autoFocus
-        />
-        {error && <p className="mt-2 text-xs text-red-500">Sai mật khẩu</p>}
-      </div>
-      <button
-        type="submit"
-        className="flex w-full items-center justify-center gap-2 rounded-[var(--radius-md)] bg-[var(--color-primary)] px-4 py-2.5 text-sm font-medium text-white hover:brightness-110"
-      >
-        <Lock className="h-4 w-4" /> Đăng nhập
-      </button>
-    </form>
   )
 }

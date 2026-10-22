@@ -2,7 +2,7 @@ import { Link } from "react-router-dom"
 import { ArrowRight, ClipboardCheck, TrendingUp, Warehouse, Database, BarChart3, Users, Scale, Target, Package, FileText, LayoutDashboard, CheckCircle2, BookOpen, Wrench, TrendingUp as TrendingUpIcon } from "lucide-react"
 import Container from "../components/layout/Container"
 import ArticleCard from "../components/cards/ArticleCard"
-import { seedArticles } from "../data/seedData"
+import { useArticles } from "../lib/useArticles"
 import { learningPaths } from "../data/learningPaths"
 
 // Target audience cards
@@ -135,7 +135,8 @@ const methodSteps = [
 ]
 
 export function Home() {
-  const featuredArticles = seedArticles.filter(a => a.featured).slice(0, 3)
+  const { articles } = useArticles()
+  const featuredArticles = articles.filter(a => a.featured).slice(0, 3)
   const featuredLearningPaths = learningPaths.filter((path) =>
     ["supply-chain-foundation", "forecasting", "sop"].includes(path.slug)
   )

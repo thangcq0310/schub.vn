@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { ClipboardCheck, Send, CheckCircle } from "lucide-react"
 import Container from "../components/layout/Container"
+import { submitLead } from "../lib/leads"
 
 const checklistSections = [
   {
@@ -36,6 +37,8 @@ const labelClassName = "mb-1 block text-sm font-medium text-[var(--color-text)]"
 export function Checklist() {
   const [form, setForm] = useState({ name: "", email: "", company: "", role: "" })
   const [submitted, setSubmitted] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [error, setError] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState("Tất cả")
 
   const filteredSections = checklistSections.filter((section) => {
@@ -43,10 +46,25 @@ export function Checklist() {
     return true
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Subscriber:", form)
-    setSubmitted(true)
+    setSending(true)
+    setError(false)
+    try {
+      await submitLead({
+        source: "checklist",
+        name: form.name.trim(),
+        email: form.email.trim(),
+        company: form.company.trim(),
+        role: form.role.trim(),
+      })
+      setSubmitted(true)
+    } catch (err) {
+      console.error("Could not save checklist request", err)
+      setError(true)
+    } finally {
+      setSending(false)
+    }
   }
 
   return (
@@ -107,11 +125,17 @@ export function Checklist() {
               </div>
               <button
                 type="submit"
-                className="focus-ring flex w-full items-center justify-center gap-2 rounded-[var(--radius-md)] bg-[var(--color-secondary)] px-6 py-3 font-medium text-white transition-colors hover:brightness-110"
+                disabled={sending}
+                className="focus-ring flex w-full items-center justify-center gap-2 rounded-[var(--radius-md)] bg-[var(--color-secondary)] px-6 py-3 font-medium text-white transition-colors hover:brightness-110 disabled:opacity-60"
               >
                 <Send className="h-5 w-5" />
-                Nhận checklist
+                {sending ? "Đang gửi..." : "Nhận checklist"}
               </button>
+              {error && (
+                <p className="text-sm text-red-500">
+                  Chưa gửi được thông tin. Vui lòng thử lại hoặc email <a href="mailto:contact@schub.vn" className="underline">contact@schub.vn</a>.
+                </p>
+              )}
             </form>
           </div>
         ) : (
@@ -119,8 +143,8 @@ export function Checklist() {
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-success)] text-white">
               <CheckCircle className="h-8 w-8" />
             </div>
-            <h2 className="font-[var(--font-display)] text-2xl text-[var(--color-text)]">Checklist đã gửi!</h2>
-            <p className="mt-2 text-[var(--color-text-muted)]">Vui lòng kiểm tra email để xem checklist.</p>
+            <h2 className="font-[var(--font-display)] text-2xl text-[var(--color-text)]">Đã nhận thông tin!</h2>
+            <p className="mt-2 text-[var(--color-text-muted)]">SCHub sẽ gửi checklist tới {form.email} trong thời gian sớm nhất.</p>
           </div>
         )}
 

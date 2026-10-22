@@ -1,8 +1,7 @@
-import { useMemo } from "react"
 import { useParams, Link, Navigate } from "react-router-dom"
 import { Clock, User, ArrowLeft } from "lucide-react"
 import Container from "../components/layout/Container"
-import { getArticleBySlug, getAllArticles } from "../data/articles"
+import { useArticles } from "../lib/useArticles"
 import { ArticleMarkdown } from "../components/ArticleMarkdown"
 
 // Old slugs of renamed posts, kept so links already shared still work
@@ -13,8 +12,8 @@ const renamedSlugs: Record<string, string> = {
 
 export function ArticleDetail() {
   const { slug } = useParams()
-  const allArticles = useMemo(() => getAllArticles(), [])
-  const article = slug ? getArticleBySlug(slug) ?? null : null
+  const { articles: allArticles, loading } = useArticles()
+  const article = slug ? allArticles.find((a) => a.slug === slug) ?? null : null
   const related = article
     ? allArticles.filter((x) => x.id !== article.id && x.tags.some((t) => article.tags.includes(t))).slice(0, 3)
     : []
@@ -24,6 +23,13 @@ export function ArticleDetail() {
   }
 
   if (!article) {
+    if (loading) {
+      return (
+        <Container>
+          <div className="py-12 text-center text-[var(--color-text-muted)]">Đang tải bài viết...</div>
+        </Container>
+      )
+    }
     return (
       <Container>
         <div className="py-12 text-center">

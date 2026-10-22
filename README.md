@@ -126,9 +126,13 @@ Chia sẻ:
 
 * React Router DOM v6
 
-### Hosting
+### Backend & Hosting
 
 * Firebase Hosting
+* Firestore (bài blog, form khách hàng)
+* Firebase Authentication (đăng nhập admin bằng Google)
+
+Cấu hình Firebase lần đầu: xem [docs/setup-firebase.md](docs/setup-firebase.md).
 
 ---
 
