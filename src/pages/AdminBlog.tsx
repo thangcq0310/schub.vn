@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
-import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
 import { ArrowLeft, Save, Plus, Trash2, Eye, Edit3, Film, Copy, Check } from "lucide-react"
 import { getAllArticles, saveArticle, deleteArticle, getPublishedArticles, generateSlug, type Article } from "../data/articles"
+import { ArticleMarkdown } from "../components/ArticleMarkdown"
 
 function getDateSeconds(): { seconds: number; nanoseconds: number } {
   return { seconds: Math.floor(Date.now() / 1000), nanoseconds: 0 }
@@ -21,10 +20,8 @@ function extractYoutubeId(url: string): string {
   return ""
 }
 
-function youtubeEmbedHtml(id: string): string {
-  return `<div class="youtube-embed">
-  <iframe src="https://www.youtube.com/embed/${id}" title="YouTube video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-</div>`
+function youtubeEmbedMarkdown(id: string): string {
+  return `![YouTube video](https://www.youtube.com/watch?v=${id})`
 }
 
 export function AdminBlog() {
@@ -65,7 +62,7 @@ export function AdminBlog() {
 
   const insertYoutubeEmbed = () => {
     if (!previewYoutubeId) return
-    const embed = youtubeEmbedHtml(previewYoutubeId)
+    const embed = youtubeEmbedMarkdown(previewYoutubeId)
     setForm(prev => ({ ...prev, body: prev.body + (prev.body ? "\n\n" : "") + embed }))
     setYoutubeUrl("")
     setPreviewYoutubeId("")
@@ -233,7 +230,7 @@ export function AdminBlog() {
                     </p>
                   )}
                   <div className="markdown-body" style={{ color: "var(--color-text)" }}>
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{form.body || "*Chưa có nội dung...*"}</ReactMarkdown>
+                    <ArticleMarkdown>{form.body || "*Chưa có nội dung...*"}</ArticleMarkdown>
                   </div>
                 </div>
               ) : (

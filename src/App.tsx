@@ -13,6 +13,7 @@ import { SolutionDetail } from "@/pages/SolutionDetail"
 import { Resources } from "@/pages/Resources"
 import { Checklist } from "@/pages/Checklist"
 import { About } from "@/pages/About"
+import { NotFound } from "@/pages/NotFound"
 import { Learning } from "@/pages/learning/Learning"
 import { LearningSupplyChainFoundation } from "@/pages/learning/LearningSupplyChainFoundation"
 import { LearningDemandAnalysis } from "@/pages/learning/LearningDemandAnalysis"
@@ -56,6 +57,7 @@ function App() {
           <Route path="about" element={<About />} />
           <Route path="scm" element={<Navigate to="/" replace />} />
           <Route path="scm/*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
         <Route path="/admin/blog" element={<AdminGuard><AdminBlog /></AdminGuard>} />
       </Routes>

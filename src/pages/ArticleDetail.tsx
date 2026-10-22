@@ -1,11 +1,15 @@
 import { useMemo } from "react"
-import { useParams, Link } from "react-router-dom"
+import { useParams, Link, Navigate } from "react-router-dom"
 import { Clock, User, ArrowLeft } from "lucide-react"
-import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
 import Container from "../components/layout/Container"
 import { getArticleBySlug, getAllArticles } from "../data/articles"
-import { VideoEmbed } from "../components/VideoEmbed"
+import { ArticleMarkdown } from "../components/ArticleMarkdown"
+
+// Old slugs of renamed posts, kept so links already shared still work
+const renamedSlugs: Record<string, string> = {
+  "noi đau-du-bao-nhu-cau-nong-san-va-cach-xu-ly-tan-goc": "noi-dau-du-bao-nhu-cau-nong-san-va-cach-xu-ly-tan-goc",
+  "chiens-luoc-mua-hang-khi-nong-san-nhay-gia-hang-ngay": "chien-luoc-mua-hang-khi-nong-san-nhay-gia-hang-ngay",
+}
 
 export function ArticleDetail() {
   const { slug } = useParams()
@@ -14,6 +18,10 @@ export function ArticleDetail() {
   const related = article
     ? allArticles.filter((x) => x.id !== article.id && x.tags.some((t) => article.tags.includes(t))).slice(0, 3)
     : []
+
+  if (slug && renamedSlugs[slug]) {
+    return <Navigate to={`/blog/${renamedSlugs[slug]}`} replace />
+  }
 
   if (!article) {
     return (
@@ -58,22 +66,7 @@ export function ArticleDetail() {
 <div className="prose max-w-none">
   <p className="text-lg text-[var(--color-text-muted)] mb-8">{article.excerpt}</p>
   <div className="markdown-body text-[var(--color-text)]">
-    <ReactMarkdown
-      remarkPlugins={[remarkGfm]}
-      components={{
-        img: ({ src, alt }) => {
-          if (!src) return null
-          if (src.startsWith("video:") || /\.(mp4|webm|ogg)$/i.test(src)) {
-            const videoSrc = src.startsWith("video:") ? src.slice(6) : src
-            return <VideoEmbed src={videoSrc} title={alt} />
-          }
-          if (/(youtube\.com|youtu\.be|vimeo\.com)/i.test(src)) {
-            return <VideoEmbed src={src} title={alt} />
-          }
-          return <img src={src} alt={alt ?? ""} className="max-w-full rounded-[var(--radius-md)]" />
-        },
-      }}
-    >{article.body}</ReactMarkdown>
+    <ArticleMarkdown>{article.body}</ArticleMarkdown>
   </div>
 </div>
       </article>

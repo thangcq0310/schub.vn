@@ -51,29 +51,32 @@ function toArticle(id: string, data: Record<string, unknown>): Article {
 
 const COLLECTION = "articles"
 
+// Seed data stores publishedAt as { seconds }, this module works in milliseconds
+const seeds: Article[] = seedArticles.map((a) => ({ ...a, publishedAt: a.publishedAt.seconds * 1000 }))
+
 export async function getAllArticles(): Promise<Article[]> {
-  if (isDemoMode) return seedArticles as Article[]
+  if (isDemoMode) return seeds
   try {
     const q = query(collection(db, COLLECTION), orderBy("publishedAt", "desc"))
     const snapshot = await getDocs(q)
-    if (snapshot.empty) return seedArticles as Article[]
+    if (snapshot.empty) return seeds
     return snapshot.docs.map((d) => toArticle(d.id, d.data() as Record<string, unknown>))
   } catch {
-    return seedArticles as Article[]
+    return seeds
   }
 }
 
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
-  if (isDemoMode) return (seedArticles as Article[]).find((a) => a.slug === slug) ?? null
+  if (isDemoMode) return seeds.find((a) => a.slug === slug) ?? null
   try {
     const q = query(collection(db, COLLECTION), where("slug", "==", slug))
     const snapshot = await getDocs(q)
     if (!snapshot.empty) {
       return toArticle(snapshot.docs[0].id, snapshot.docs[0].data() as Record<string, unknown>)
     }
-    return (seedArticles as Article[]).find((a) => a.slug === slug) ?? null
+    return seeds.find((a) => a.slug === slug) ?? null
   } catch {
-    return (seedArticles as Article[]).find((a) => a.slug === slug) ?? null
+    return seeds.find((a) => a.slug === slug) ?? null
   }
 }
 
@@ -100,12 +103,12 @@ export async function updateArticle(id: string, data: Partial<Article>): Promise
     return false
   }
   try {
-    const updates = { ...data }
-    delete (updates as Record<string, unknown>).id
-    if (updates.publishedAt) {
-      updates.publishedAt = Timestamp.fromMillis(updates.publishedAt)
+    const updates: Record<string, unknown> = { ...data }
+    delete updates.id
+    if (data.publishedAt) {
+      updates.publishedAt = Timestamp.fromMillis(data.publishedAt)
     }
-    await updateDoc(doc(db, COLLECTION, id), updates as Record<string, unknown>)
+    await updateDoc(doc(db, COLLECTION, id), updates)
     return true
   } catch {
     return false

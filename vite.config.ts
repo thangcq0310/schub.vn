@@ -4,10 +4,7 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [
-    react({
-      devCompanion: false,
-      fastRefresh: false,
-    }),
+    react(),
   ],
   server: {
     port: 5173,

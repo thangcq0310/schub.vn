@@ -44,8 +44,8 @@ export default function Navbar() {
    const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
    const [solutionsOpen, setSolutionsOpen] = useState(false)
    const [learningOpen, setLearningOpen] = useState(false)
-   const [solutionsTimeout, setSolutionsTimeout] = useState<NodeJS.Timeout | null>(null)
-   const [learningTimeout, setLearningTimeout] = useState<NodeJS.Timeout | null>(null)
+   const [solutionsTimeout, setSolutionsTimeout] = useState<ReturnType<typeof setTimeout> | null>(null)
+   const [learningTimeout, setLearningTimeout] = useState<ReturnType<typeof setTimeout> | null>(null)
 
   const activeSolutions = useMemo(
     () => location.pathname === "/solutions" || location.pathname.startsWith("/solutions/"),
